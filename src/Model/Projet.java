@@ -1,35 +1,29 @@
 package Model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 public class Projet {
-    private Long id;
+    private String id;
     private String nomProjet;
-    private Client client;
+    private double surface;
     private double margeBeneficiaire;
     private double coutTotal;
     private EtatProjet etatProjet;
-    private List<Composant> composants;
 
-    public enum EtatProjet {
-        EN_COURS, TERMINE, ANNULE
-    }
-
-    public Projet(String nomProjet, Client client, double margeBeneficiaire) {
+    // Constructor
+    public Projet(String id, String nomProjet, double surface, double margeBeneficiaire, double coutTotal, EtatProjet etatProjet) {
+        this.id = id;
         this.nomProjet = nomProjet;
-        this.client = client;
+        this.surface = surface;
         this.margeBeneficiaire = margeBeneficiaire;
-        this.etatProjet = EtatProjet.EN_COURS;
-        this.composants = new ArrayList<>();
+        this.coutTotal = coutTotal;
+        this.etatProjet = etatProjet;
     }
 
-    public Long getId() {
+    // Getters and Setters
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -41,12 +35,12 @@ public class Projet {
         this.nomProjet = nomProjet;
     }
 
-    public Client getClient() {
-        return client;
+    public double getSurface() {
+        return surface;
     }
 
-    public void setClient(Client client) {
-        this.client = client;
+    public void setSurface(double surface) {
+        this.surface = surface;
     }
 
     public double getMargeBeneficiaire() {
@@ -71,44 +65,5 @@ public class Projet {
 
     public void setEtatProjet(EtatProjet etatProjet) {
         this.etatProjet = etatProjet;
-    }
-
-    public List<Composant> getComposants() {
-        return composants;
-    }
-
-    public void ajouterComposant(Composant composant) {
-        this.composants.add(composant);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Projet projet = (Projet) o;
-        return Double.compare(projet.margeBeneficiaire, margeBeneficiaire) == 0 &&
-                Double.compare(projet.coutTotal, coutTotal) == 0 &&
-                Objects.equals(id, projet.id) &&
-                Objects.equals(nomProjet, projet.nomProjet) &&
-                Objects.equals(client, projet.client) &&
-                etatProjet == projet.etatProjet;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, nomProjet, client, margeBeneficiaire, coutTotal, etatProjet);
-    }
-
-    @Override
-    public String toString() {
-        return "Projet{" +
-                "id=" + id +
-                ", nomProjet='" + nomProjet + '\'' +
-                ", client=" + client +
-                ", margeBeneficiaire=" + margeBeneficiaire +
-                ", coutTotal=" + coutTotal +
-                ", etatProjet=" + etatProjet +
-                ", composants=" + composants +
-                '}';
     }
 }

@@ -1,38 +1,34 @@
 package Model;
 
-import java.time.LocalDate;
-import java.util.Objects;
+import java.util.Date;
 
 public class Devis {
-    private Long id;
-    private Projet projet;
+    private String id;
     private double montantEstime;
-    private LocalDate dateEmission;
-    private LocalDate dateValidite;
+    private Date dateEmission;
+    private Date dateValidite;
+    private double TVA;
     private boolean accepte;
+    private Projet projet;
 
-    public Devis(Projet projet, LocalDate dateEmission, LocalDate dateValidite) {
-        this.projet = projet;
+    // Constructor
+    public Devis(String id, double montantEstime, Date dateEmission, Date dateValidite, double TVA, boolean accepte, Projet projet) {
+        this.id = id;
+        this.montantEstime = montantEstime;
         this.dateEmission = dateEmission;
         this.dateValidite = dateValidite;
-        this.accepte = false;
-        this.montantEstime = calculerMontantEstime();
+        this.TVA = TVA;
+        this.accepte = accepte;
+        this.projet = projet;
     }
 
-    public Long getId() {
+    // Getters and Setters
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
-    }
-
-    public Projet getProjet() {
-        return projet;
-    }
-
-    public void setProjet(Projet projet) {
-        this.projet = projet;
     }
 
     public double getMontantEstime() {
@@ -43,20 +39,28 @@ public class Devis {
         this.montantEstime = montantEstime;
     }
 
-    public LocalDate getDateEmission() {
+    public Date getDateEmission() {
         return dateEmission;
     }
 
-    public void setDateEmission(LocalDate dateEmission) {
+    public void setDateEmission(Date dateEmission) {
         this.dateEmission = dateEmission;
     }
 
-    public LocalDate getDateValidite() {
+    public Date getDateValidite() {
         return dateValidite;
     }
 
-    public void setDateValidite(LocalDate dateValidite) {
+    public void setDateValidite(Date dateValidite) {
         this.dateValidite = dateValidite;
+    }
+
+    public double getTVA() {
+        return TVA;
+    }
+
+    public void setTVA(double TVA) {
+        this.TVA = TVA;
     }
 
     public boolean isAccepte() {
@@ -67,46 +71,11 @@ public class Devis {
         this.accepte = accepte;
     }
 
-    // Méthode pour calculer le montant estimé
-    private double calculerMontantEstime() {
-        double totalComposants = projet.getComposants().stream()
-                .mapToDouble(Composant::calculerCout)
-                .sum();
-
-        return totalComposants * (1 + projet.getMargeBeneficiaire() / 100);
+    public Projet getProjet() {
+        return projet;
     }
 
-    public boolean estValide() {
-        return LocalDate.now().isBefore(dateValidite) || LocalDate.now().isEqual(dateValidite);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Devis devis = (Devis) o;
-        return Double.compare(devis.montantEstime, montantEstime) == 0 &&
-                accepte == devis.accepte &&
-                Objects.equals(id, devis.id) &&
-                Objects.equals(projet, devis.projet) &&
-                Objects.equals(dateEmission, devis.dateEmission) &&
-                Objects.equals(dateValidite, devis.dateValidite);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, projet, montantEstime, dateEmission, dateValidite, accepte);
-    }
-
-    @Override
-    public String toString() {
-        return "Devis{" +
-                "id=" + id +
-                ", projet=" + projet.getNomProjet() +
-                ", montantEstime=" + montantEstime +
-                ", dateEmission=" + dateEmission +
-                ", dateValidite=" + dateValidite +
-                ", accepte=" + accepte +
-                '}';
+    public void setProjet(Projet projet) {
+        this.projet = projet;
     }
 }

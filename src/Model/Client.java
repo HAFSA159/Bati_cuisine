@@ -1,27 +1,27 @@
 package Model;
 
-import java.util.Objects;
-
 public class Client {
-    private Long id;
+    private String id;
     private String nom;
     private String adresse;
     private String telephone;
     private boolean estProfessionnel;
 
-    public Client(String nom, String adresse, String telephone, boolean estProfessionnel) {
+    // Constructor
+    public Client(String id, String nom, String adresse, String telephone, boolean estProfessionnel) {
+        this.id = id;
         this.nom = nom;
         this.adresse = adresse;
         this.telephone = telephone;
         this.estProfessionnel = estProfessionnel;
     }
 
-    // Getters et Setters
-    public Long getId() {
+    // Getters and Setters
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -49,39 +49,12 @@ public class Client {
         this.telephone = telephone;
     }
 
-    public boolean estProfessionnel() {
+    public boolean isEstProfessionnel() {
         return estProfessionnel;
     }
 
     public void setEstProfessionnel(boolean estProfessionnel) {
         this.estProfessionnel = estProfessionnel;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Client client = (Client) o;
-        return estProfessionnel == client.estProfessionnel &&
-                Objects.equals(id, client.id) &&
-                Objects.equals(nom, client.nom) &&
-                Objects.equals(adresse, client.adresse) &&
-                Objects.equals(telephone, client.telephone);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, nom, adresse, telephone, estProfessionnel);
-    }
-
-    @Override
-    public String toString() {
-        return "Client{" +
-                "id=" + id +
-                ", nom='" + nom + '\'' +
-                ", adresse='" + adresse + '\'' +
-                ", telephone='" + telephone + '\'' +
-                ", estProfessionnel=" + estProfessionnel +
-                '}';
-    }
 }
+

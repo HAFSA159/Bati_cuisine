@@ -1,24 +1,25 @@
 package Model;
 
-import java.util.Objects;
-
 public abstract class Composant {
-    protected Long id;
+    protected String id;
     protected String nom;
-    protected String typeComposant;
+    protected String typeComposant; // Can be 'MATERIEL' or 'MAINDOEUVRE'
     protected double tauxTVA;
 
-    public Composant(String nom, String typeComposant, double tauxTVA) {
+    // Constructor
+    public Composant(String id, String nom, String typeComposant, double tauxTVA) {
+        this.id = id;
         this.nom = nom;
         this.typeComposant = typeComposant;
         this.tauxTVA = tauxTVA;
     }
 
-    public Long getId() {
+    // Getters and Setters
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -44,34 +45,5 @@ public abstract class Composant {
 
     public void setTauxTVA(double tauxTVA) {
         this.tauxTVA = tauxTVA;
-    }
-
-    // Méthode abstraite pour calculer le coût
-    public abstract double calculerCout();
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Composant composant = (Composant) o;
-        return Double.compare(composant.tauxTVA, tauxTVA) == 0 &&
-                Objects.equals(id, composant.id) &&
-                Objects.equals(nom, composant.nom) &&
-                Objects.equals(typeComposant, composant.typeComposant);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, nom, typeComposant, tauxTVA);
-    }
-
-    @Override
-    public String toString() {
-        return "Composant{" +
-                "id=" + id +
-                ", nom='" + nom + '\'' +
-                ", typeComposant='" + typeComposant + '\'' +
-                ", tauxTVA=" + tauxTVA +
-                '}';
     }
 }
