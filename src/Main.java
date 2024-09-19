@@ -1,14 +1,11 @@
 import Model.EtatProjet;
 import Model.Projet;
 import DAO.ProjetDAO;
-import Utilitaire.DatabaseConnection;
-
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Main {
-   /* private static ProjetDAO projetDAO = new ProjetDAO();
+    private static ProjetDAO projetDAO = new ProjetDAO();
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -126,16 +123,4 @@ public class Main {
     }
 
  */
-
-
-    public static void main(String[] args) {
-        // Tester la connexion à la base de données
-        Connection connection = DatabaseConnection.connect();
-
-        if (connection != null) {
-            System.out.println("Connexion à la base de données réussie !");
-        } else {
-            System.out.println("Échec de la connexion à la base de données.");
-        }
-    }
 }
