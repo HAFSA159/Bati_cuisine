@@ -99,7 +99,7 @@ import java.util.Scanner;
                         updateProject();
                         break;
                     case 4:
-                        //deleteProject();
+                        deleteProject();
                         break;
                     case 5:
                         continueManaging = false;
@@ -246,5 +246,15 @@ import java.util.Scanner;
             }
         }
 
+    public void deleteProject() {
+            System.out.println("Enter Project ID to delete:");
+            int id = Integer.parseInt(scanner.nextLine()); // Changed to int
 
-}
+            try {
+                projetDAO.deleteProject(id);
+            } catch (SQLException e) {
+                System.out.println("Error deleting project: " + e.getMessage());
+            }
+    }
+
+    }

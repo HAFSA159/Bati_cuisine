@@ -66,17 +66,6 @@ public class ProjetDAO {
         }
     }
 
-
-    public static void deleteProject(int projectId) throws SQLException {
-        String DELETE_PROJECT = "DELETE FROM project WHERE id = ?";
-
-        try (Connection connection = DatabaseConnection.connect();
-             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_PROJECT)) {
-            preparedStatement.setInt(1, projectId);
-            preparedStatement.executeUpdate();
-        }
-    }
-
     public Project getProjectById(int id) throws SQLException {
         String SELECT_PROJECT_BY_ID = "SELECT * FROM project WHERE id = ?";
 
@@ -101,6 +90,22 @@ public class ProjetDAO {
             }
         }
     }
+
+    public void deleteProject(int id) throws SQLException {
+        String DELETE_PROJECT = "DELETE FROM project WHERE id = ?";
+
+        try (Connection connection = DatabaseConnection.connect();
+             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_PROJECT)) {
+            preparedStatement.setInt(1, id); // Use setInt for ID
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected == 0) {
+                System.out.println("No project found with ID: " + id);
+            } else {
+                System.out.println("Project deleted successfully.");
+            }
+        }
+    }
+
 
 }
 
