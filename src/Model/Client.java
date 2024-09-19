@@ -7,7 +7,6 @@ public class Client {
     private String phone;
     private boolean isProfessional;
 
-    // Constructor with id (used when retrieving from the database)
     public Client(String id, String name, String address, String phone, boolean isProfessional) {
         this.id = id;
         this.name = name;
@@ -16,7 +15,6 @@ public class Client {
         this.isProfessional = isProfessional;
     }
 
-    // Constructor without id (used when creating a new client)
     public Client(String name, String address, String phone, boolean isProfessional) {
         this.name = name;
         this.address = address;

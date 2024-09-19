@@ -11,7 +11,6 @@ public class ClientDAO {
     private static final String INSERT_CLIENT = "INSERT INTO Client (name, address, phone, isProfessional) VALUES (?, ?, ?, ?)";
     private static final String SELECT_ALL_CLIENTS = "SELECT * FROM Client";
 
-    // Method to add a new client to the database
     public void createClient(Client client) throws SQLException {
         try (Connection connection = DatabaseConnection.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_CLIENT)) {
