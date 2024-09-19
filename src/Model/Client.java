@@ -2,21 +2,29 @@ package Model;
 
 public class Client {
     private String id;
-    private String nom;
-    private String adresse;
-    private String telephone;
-    private boolean estProfessionnel;
+    private String name;
+    private String address;
+    private String phone;
+    private boolean isProfessional;
 
-    // Constructor
-    public Client(String id, String nom, String adresse, String telephone, boolean estProfessionnel) {
+    // Constructor with id (used when retrieving from the database)
+    public Client(String id, String name, String address, String phone, boolean isProfessional) {
         this.id = id;
-        this.nom = nom;
-        this.adresse = adresse;
-        this.telephone = telephone;
-        this.estProfessionnel = estProfessionnel;
+        this.name = name;
+        this.address = address;
+        this.phone = phone;
+        this.isProfessional = isProfessional;
     }
 
-    // Getters and Setters
+    // Constructor without id (used when creating a new client)
+    public Client(String name, String address, String phone, boolean isProfessional) {
+        this.name = name;
+        this.address = address;
+        this.phone = phone;
+        this.isProfessional = isProfessional;
+    }
+
+    // Getter and Setter methods
     public String getId() {
         return id;
     }
@@ -25,36 +33,35 @@ public class Client {
         this.id = id;
     }
 
-    public String getNom() {
-        return nom;
+    public String getName() {
+        return name;
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getAdresse() {
-        return adresse;
+    public String getAddress() {
+        return address;
     }
 
-    public void setAdresse(String adresse) {
-        this.adresse = adresse;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
-    public String getTelephone() {
-        return telephone;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setTelephone(String telephone) {
-        this.telephone = telephone;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
-    public boolean isEstProfessionnel() {
-        return estProfessionnel;
+    public boolean isProfessional() {
+        return isProfessional;
     }
 
-    public void setEstProfessionnel(boolean estProfessionnel) {
-        this.estProfessionnel = estProfessionnel;
+    public void setProfessional(boolean isProfessional) {
+        this.isProfessional = isProfessional;
     }
 }
-

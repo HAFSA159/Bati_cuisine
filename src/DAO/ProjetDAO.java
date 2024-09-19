@@ -36,9 +36,6 @@ public class ProjetDAO {
         }
     }
 
-
-
-    // Read
     public Projet getProjetById(String id) throws SQLException {
         String query = "SELECT * FROM projet WHERE id = ?";
         try (Connection conn = DatabaseConnection.connect();
@@ -48,18 +45,17 @@ public class ProjetDAO {
             if (rs.next()) {
                 return new Projet(
                         rs.getString("id"),
-                        rs.getString("nom_projet"),
+                        rs.getString("nomprojet"),
                         rs.getDouble("surface"),
-                        rs.getDouble("marge_beneficiaire"),
-                        rs.getDouble("cout_total"),
-                        EtatProjet.valueOf(rs.getString("etat_projet"))
+                        rs.getDouble("margebeneficiaire"),
+                        rs.getDouble("couttotal"),
+                        EtatProjet.valueOf(rs.getString("etatprojet"))
                 );
             }
         }
         return null;
     }
 
-    // Update
     public void updateProjet(Projet projet) throws SQLException {
         String query = "UPDATE projet SET nomprojet = ?, surface = ?, margebeneficiaire = ?, couttotal = ?, etatprojet = ? WHERE id = ?";
         try (Connection conn = DatabaseConnection.connect();
@@ -74,7 +70,6 @@ public class ProjetDAO {
         }
     }
 
-    // Delete
     public void deleteProjet(String id) throws SQLException {
         String query = "DELETE FROM projet WHERE id = ?";
         try (Connection conn = DatabaseConnection.connect();
@@ -84,7 +79,6 @@ public class ProjetDAO {
         }
     }
 
-    // Read all projects
     public List<Projet> getAllProjets() throws SQLException {
         List<Projet> projets = new ArrayList<>();
         String query = "SELECT * FROM projet";

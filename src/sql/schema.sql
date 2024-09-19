@@ -30,12 +30,12 @@ CREATE TABLE Materiel (
 ) INHERITS (Composant);
 
 
-CREATE TABLE Client (
-  id VARCHAR(255) PRIMARY KEY,
-  nom VARCHAR(255) NOT NULL,
-  adresse VARCHAR(255) NOT NULL,
-  telephone VARCHAR(15) NOT NULL,
-  estProfessionnel BOOLEAN NOT NULL
+CREATE TABLE client (
+    id SERIAL PRIMARY KEY,
+    nom VARCHAR(255) NOT NULL,
+    adresse VARCHAR(255),
+    telephone VARCHAR(20),
+    estProfessionnel BOOLEAN
 );
 
 CREATE TABLE Devi (

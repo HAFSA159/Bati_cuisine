@@ -8,7 +8,6 @@ public class Projet {
     private double coutTotal;
     private EtatProjet etatProjet;
 
-    // Constructor
     public Projet(String id, String nomProjet, double surface, double margeBeneficiaire, double coutTotal, EtatProjet etatProjet) {
         this.id = id;
         this.nomProjet = nomProjet;
@@ -18,7 +17,6 @@ public class Projet {
         this.etatProjet = etatProjet;
     }
 
-    // Getters and Setters
     public String getId() {
         return id;
     }
