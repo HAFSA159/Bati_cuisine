@@ -1,7 +1,10 @@
 package Presentation;
 
 import DAO.ClientDAO;
+import DAO.ProjetDAO;
 import Model.Client;
+import Model.ProjectStatus;
+import Model.Project;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -11,8 +14,7 @@ public class ConsoleUI {
     private ClientDAO clientDAO;
     private Scanner scanner;
 
-    public ConsoleUI(ClientDAO clientDAO) {
-        this.clientDAO = clientDAO;
+    public ConsoleUI() {
         this.scanner = new Scanner(System.in);
     }
 
@@ -22,10 +24,11 @@ public class ConsoleUI {
             System.out.println("\n=== Menu ===");
             System.out.println("1. Create Client");
             System.out.println("2. Show Clients");
-            System.out.println("3. Exit");
+            System.out.println("3. Add Project");
+            System.out.println("4. Exit");
             System.out.print("Choose an option: ");
             int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
@@ -35,6 +38,9 @@ public class ConsoleUI {
                     showClients();
                     break;
                 case 3:
+                    addProject();
+                    break;
+                case 4:
                     continueRunning = false;
                     break;
                 default:
@@ -83,6 +89,31 @@ public class ConsoleUI {
             }
         } catch (SQLException e) {
             System.out.println("Error retrieving clients: " + e.getMessage());
+        }
+    }
+
+    private void addProject() {
+        try {
+            System.out.print("Enter Project Name: ");
+            String projectName = scanner.nextLine();
+
+            System.out.print("Enter Area: ");
+            double area = scanner.nextDouble();
+
+            System.out.print("Enter Profit Margin: ");
+            double profitMargin = scanner.nextDouble();
+            scanner.nextLine();
+
+            ProjectStatus projectStatus = ProjectStatus.IN_PROGRESS;
+
+            Project projet = new Project(projectName, area, profitMargin, projectStatus);
+
+            ProjetDAO.createProject(projet);
+
+            System.out.println("Project added successfully!");
+
+        } catch (SQLException e) {
+            System.out.println("Error adding project: " + e.getMessage());
         }
     }
 

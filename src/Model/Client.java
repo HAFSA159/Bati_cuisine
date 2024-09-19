@@ -22,7 +22,6 @@ public class Client {
         this.isProfessional = isProfessional;
     }
 
-    // Getter and Setter methods
     public String getId() {
         return id;
     }

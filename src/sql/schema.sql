@@ -1,50 +1,47 @@
-CREATE TABLE Projet (
-  id VARCHAR(255) PRIMARY KEY,
-  nomProjet VARCHAR(255) NOT NULL,
+CREATE TABLE Project (
+  id SERIAL PRIMARY KEY,
+  projectName VARCHAR(255) NOT NULL,
   surface REAL NOT NULL,
-  margeBeneficiaire REAL NOT NULL,
-  coutTotal REAL NOT NULL,
-  etatProjet TEXT CHECK (etatProjet IN ('ENCOURS', 'TERMINE', 'ANNULE')) NOT NULL
+  profitMargin REAL NOT NULL,
+  totalCost REAL NOT NULL,
+  projectStatus TEXT DEFAULT 'IN_PROGRESS' CHECK (projectStatus IN ('IN_PROGRESS', 'COMPLETED', 'CANCELLED')) NOT NULL
 );
 
-
-CREATE TABLE Composant (
-  id VARCHAR(255) PRIMARY KEY,
-  nom VARCHAR(255) NOT NULL,
-  typeComposant TEXT CHECK (typeComposant IN ('MATERIEL', 'MAINDOEUVRE')) NOT NULL,
-  tauxTVA REAL NOT NULL
+CREATE TABLE Component (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  componentType TEXT CHECK (componentType IN ('MATERIAL', 'LABOR')) NOT NULL,
+  VATRate REAL NOT NULL
 );
 
-CREATE TABLE MainDoeuvre (
-  tauxHoraire REAL NOT NULL,
-  heuresTravail REAL NOT NULL,
-  productiviteOuvrier REAL NOT NULL
-) INHERITS (Composant);
+CREATE TABLE Labor (
+  hourlyRate REAL NOT NULL,
+  hoursWorked REAL NOT NULL,
+  workerProductivity REAL NOT NULL
+) INHERITS (Component);
 
+CREATE TABLE Material (
+  unitCost REAL NOT NULL,
+  quantity REAL NOT NULL,
+  transportCost REAL NOT NULL,
+  qualityCoefficient REAL NOT NULL
+) INHERITS (Component);
 
-CREATE TABLE Materiel (
-  coutUnitaire REAL NOT NULL,
-  quantite REAL NOT NULL,
-  coutTransport REAL NOT NULL,
-  coefficientQualite REAL NOT NULL
-) INHERITS (Composant);
-
-
-CREATE TABLE client (
+CREATE TABLE Client (
     id SERIAL PRIMARY KEY,
-    nom VARCHAR(255) NOT NULL,
-    adresse VARCHAR(255),
-    telephone VARCHAR(20),
-    estProfessionnel BOOLEAN
+    name VARCHAR(255) NOT NULL,
+    address VARCHAR(255),
+    phone VARCHAR(20),
+    isProfessional BOOLEAN
 );
 
-CREATE TABLE Devi (
-  id VARCHAR(255) PRIMARY KEY,
-  montantEstime REAL NOT NULL,
-  dateEmission DATE NOT NULL,
-  dateValidite DATE NOT NULL,
-  TVA REAL NOT NULL,
-  accepte BOOLEAN NOT NULL,
-  projetId VARCHAR(255),
-  FOREIGN KEY (projetId) REFERENCES Projet(id)
+CREATE TABLE Quotation (
+  id SERIAL PRIMARY KEY,
+  estimatedAmount REAL NOT NULL,
+  issueDate DATE NOT NULL,
+  validityDate DATE NOT NULL,
+  VAT REAL NOT NULL,
+  accepted BOOLEAN NOT NULL,
+  projectId INTEGER,
+  FOREIGN KEY (projectId) REFERENCES Project(id)
 );

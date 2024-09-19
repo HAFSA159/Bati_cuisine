@@ -9,10 +9,10 @@ public class Devis {
     private Date dateValidite;
     private double TVA;
     private boolean accepte;
-    private Projet projet;
+    private Project projet;
 
     // Constructor
-    public Devis(String id, double montantEstime, Date dateEmission, Date dateValidite, double TVA, boolean accepte, Projet projet) {
+    public Devis(String id, double montantEstime, Date dateEmission, Date dateValidite, double TVA, boolean accepte, Project projet) {
         this.id = id;
         this.montantEstime = montantEstime;
         this.dateEmission = dateEmission;
@@ -71,11 +71,11 @@ public class Devis {
         this.accepte = accepte;
     }
 
-    public Projet getProjet() {
+    public Project getProjet() {
         return projet;
     }
 
-    public void setProjet(Projet projet) {
+    public void setProjet(Project projet) {
         this.projet = projet;
     }
 }

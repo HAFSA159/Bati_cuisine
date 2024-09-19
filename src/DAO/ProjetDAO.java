@@ -1,103 +1,35 @@
 package DAO;
 
-import Model.Projet;
-import Model.EtatProjet;
+import Model.ProjectStatus;
+import Model.Project;
 import Utilitaire.DatabaseConnection;
-import java.util.List;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
+import java.awt.*;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class ProjetDAO {
 
-    public void createProjet(Projet projet) throws SQLException {
-        if (projet == null) {
-            throw new IllegalArgumentException("Projet object cannot be null.");
-        }
+    public static void createProject(Project projet) throws SQLException {
+        String INSERT_PROJECT = "INSERT INTO project (projectName, surface, profitMargin, totalCost, projectStatus) VALUES (?, ?, ?, ?, ?)";
 
-        String query = "INSERT INTO projet (id, nomprojet, surface, margebeneficiaire, couttotal, etatprojet) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DatabaseConnection.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection connection = DatabaseConnection.connect();
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_PROJECT)) {
+            preparedStatement.setString(1, projet.getProjectName());
+            preparedStatement.setDouble(2, projet.getSurface());
+            preparedStatement.setDouble(3, projet.getProfitMargin());
 
-            stmt.setString(1, projet.getId());
-            stmt.setString(2, projet.getNomProjet());
-            stmt.setDouble(3, projet.getSurface());
-            stmt.setDouble(4, projet.getMargeBeneficiaire());
-            stmt.setDouble(5, projet.getCoutTotal());
-            stmt.setString(6, projet.getEtatProjet().name());
-
-            int rowsAffected = stmt.executeUpdate();
-            System.out.println("Rows affected: " + rowsAffected);
-        } catch (SQLException e) {
-            System.out.println("SQL error: " + e.getMessage());
-            throw e;
-        }
-    }
-
-    public Projet getProjetById(String id) throws SQLException {
-        String query = "SELECT * FROM projet WHERE id = ?";
-        try (Connection conn = DatabaseConnection.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return new Projet(
-                        rs.getString("id"),
-                        rs.getString("nomprojet"),
-                        rs.getDouble("surface"),
-                        rs.getDouble("margebeneficiaire"),
-                        rs.getDouble("couttotal"),
-                        EtatProjet.valueOf(rs.getString("etatprojet"))
-                );
+            if (projet.getTotalCost() != null) {
+                preparedStatement.setDouble(4, projet.getTotalCost());
+            } else {
+                preparedStatement.setNull(4, Types.DOUBLE);
             }
-        }
-        return null;
-    }
 
-    public void updateProjet(Projet projet) throws SQLException {
-        String query = "UPDATE projet SET nomprojet = ?, surface = ?, margebeneficiaire = ?, couttotal = ?, etatprojet = ? WHERE id = ?";
-        try (Connection conn = DatabaseConnection.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, projet.getNomProjet());
-            stmt.setDouble(2, projet.getSurface());
-            stmt.setDouble(3, projet.getMargeBeneficiaire());
-            stmt.setDouble(4, projet.getCoutTotal());
-            stmt.setString(5, projet.getEtatProjet().toString());
-            stmt.setString(6, projet.getId());
-            stmt.executeUpdate();
+            preparedStatement.setString(5, projet.getProjectStatus().name()); // Assuming ProjectStatus is an enum
+            preparedStatement.executeUpdate();
         }
     }
 
-    public void deleteProjet(String id) throws SQLException {
-        String query = "DELETE FROM projet WHERE id = ?";
-        try (Connection conn = DatabaseConnection.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, id);
-            stmt.executeUpdate();
-        }
-    }
 
-    public List<Projet> getAllProjets() throws SQLException {
-        List<Projet> projets = new ArrayList<>();
-        String query = "SELECT * FROM projet";
-        try (Connection conn = DatabaseConnection.connect();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                Projet projet = new Projet(
-                        rs.getString("id"),
-                        rs.getString("nomprojet"),
-                        rs.getDouble("surface"),
-                        rs.getDouble("margebeneficiaire"),
-                        rs.getDouble("couttotal"),
-                        EtatProjet.valueOf(rs.getString("etatprojet"))
-                );
-                projets.add(projet);
-            }
-        }
-        return projets;
-    }
 
 }
