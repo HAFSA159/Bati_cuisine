@@ -51,4 +51,56 @@ public class ProjetDAO {
         }
         return projects;
     }
+
+    public void updateProjectWithoutCost(Project project) throws SQLException {
+        String UPDATE_PROJECT = "UPDATE project SET projectName = ?, surface = ?, profitMargin = ?, projectStatus = ? WHERE id = ?";
+
+        try (Connection connection = DatabaseConnection.connect();
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_PROJECT)) {
+            preparedStatement.setString(1, project.getProjectName());
+            preparedStatement.setDouble(2, project.getSurface());
+            preparedStatement.setDouble(3, project.getProfitMargin());
+            preparedStatement.setString(4, project.getProjectStatus().name()); // Assuming ProjectStatus is an enum
+            preparedStatement.setInt(5, project.getId()); // Use setInt for ID
+            preparedStatement.executeUpdate();
+        }
+    }
+
+
+    public static void deleteProject(int projectId) throws SQLException {
+        String DELETE_PROJECT = "DELETE FROM project WHERE id = ?";
+
+        try (Connection connection = DatabaseConnection.connect();
+             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_PROJECT)) {
+            preparedStatement.setInt(1, projectId);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    public Project getProjectById(int id) throws SQLException {
+        String SELECT_PROJECT_BY_ID = "SELECT * FROM project WHERE id = ?";
+
+        try (Connection connection = DatabaseConnection.connect();
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_PROJECT_BY_ID)) {
+            preparedStatement.setInt(1, id);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    // Retrieve data from the ResultSet
+                    String projectName = resultSet.getString("projectName");
+                    double surface = resultSet.getDouble("surface");
+                    double profitMargin = resultSet.getDouble("profitMargin");
+                    Double totalCost = resultSet.getObject("totalCost", Double.class); // Handle possible NULL
+                    ProjectStatus projectStatus = ProjectStatus.valueOf(resultSet.getString("projectStatus"));
+
+                    // Create and return the Project object
+                    return new Project(id, projectName, surface, profitMargin, totalCost, projectStatus);
+                } else {
+                    // Project not found
+                    return null;
+                }
+            }
+        }
+    }
+
 }
+

@@ -10,48 +10,106 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
-public class ConsoleUI {
-    private ClientDAO clientDAO;
-    private Scanner scanner;
+    public class ConsoleUI {
+        private Scanner scanner;
+        private ClientDAO clientDAO;
+        private ProjetDAO projetDAO;
 
-    public ConsoleUI() {
-        this.scanner = new Scanner(System.in);
-    }
+        public ConsoleUI(ClientDAO clientDAO, ProjetDAO projetDAO) {
+            this.scanner = new Scanner(System.in);
+            this.clientDAO = clientDAO;
+            this.projetDAO = projetDAO;
+        }
 
-    public void startMenu() {
-        boolean continueRunning = true;
-        while (continueRunning) {
-            System.out.println("\n=== Menu ===");
-            System.out.println("1. Create Client");
-            System.out.println("2. Show Clients");
-            System.out.println("3. Add Project");
-            System.out.println("4. Show Projects");
-            System.out.println("5. Exit");
-            System.out.print("Choose an option: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+        public void startMenu() {
+            boolean continueRunning = true;
+            while (continueRunning) {
+                System.out.println("\n=== Main Menu ===");
+                System.out.println("1. Manage Clients");
+                System.out.println("2. Manage Projects");
+                System.out.println("3. Exit");
+                System.out.print("Choose an option: ");
+                int choice = scanner.nextInt();
+                scanner.nextLine();
 
-            switch (choice) {
-                case 1:
-                    createClient();
-                    break;
-                case 2:
-                    showClients();
-                    break;
-                case 3:
-                    addProject();
-                    break;
-                case 4:
-                    showProjects();
-                    break;
-                case 5:
-                    continueRunning = false;
-                    break;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+                switch (choice) {
+                    case 1:
+                        manageClients();
+                        break;
+                    case 2:
+                        manageProjects();
+                        break;
+                    case 3:
+                        continueRunning = false;
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
             }
         }
-    }
+
+        private void manageClients() {
+            boolean continueManaging = true;
+            while (continueManaging) {
+                System.out.println("\n=== Manage Clients ===");
+                System.out.println("1. Create Client");
+                System.out.println("2. Show Clients");
+                System.out.println("3. Back to Main Menu");
+                System.out.print("Choose an option: ");
+                int choice = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (choice) {
+                    case 1:
+                        createClient();
+                        break;
+                    case 2:
+                        showClients();
+                        break;
+                    case 3:
+                        continueManaging = false;
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            }
+        }
+
+        private void manageProjects() {
+            boolean continueManaging = true;
+            while (continueManaging) {
+                System.out.println("\n=== Manage Projects ===");
+                System.out.println("1. Add Project");
+                System.out.println("2. Show Projects");
+                System.out.println("3. Update Project");
+                System.out.println("4. Delete Project");
+                System.out.println("5. Back to Main Menu");
+                System.out.print("Choose an option: ");
+                int choice = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (choice) {
+                    case 1:
+                        addProject();
+                        break;
+                    case 2:
+                        showProjects();
+                        break;
+                    case 3:
+                        updateProject();
+                        break;
+                    case 4:
+                        //deleteProject();
+                        break;
+                    case 5:
+                        continueManaging = false;
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            }
+        }
+
 
     private void createClient() {
         System.out.print("Enter client name: ");
@@ -140,5 +198,53 @@ public class ConsoleUI {
             System.out.println("Error retrieving projects: " + e.getMessage());
         }
     }
+
+    public void updateProject() {
+            System.out.println("Enter Project ID to update:");
+            int id = Integer.parseInt(scanner.nextLine()); // Changed to int
+
+            try {
+                // Retrieve the existing project details
+                Project existingProject = projetDAO.getProjectById(id);
+                if (existingProject == null) {
+                    System.out.println("Project not found.");
+                    return;
+                }
+
+                System.out.println("Enter new Project Name (leave blank to keep current):");
+                String projectName = scanner.nextLine();
+                if (!projectName.isEmpty()) {
+                    existingProject.setProjectName(projectName);
+                }
+
+                System.out.println("Enter new Surface (leave blank to keep current):");
+                String surfaceInput = scanner.nextLine();
+                if (!surfaceInput.isEmpty()) {
+                    existingProject.setSurface(Double.parseDouble(surfaceInput));
+                }
+
+                System.out.println("Enter new Profit Margin (leave blank to keep current):");
+                String profitMarginInput = scanner.nextLine();
+                if (!profitMarginInput.isEmpty()) {
+                    existingProject.setProfitMargin(Double.parseDouble(profitMarginInput));
+                }
+
+                System.out.println("Enter new Project Status (IN_PROGRESS, COMPLETED, CANCELLED, leave blank to keep current):");
+                String projectStatusInput = scanner.nextLine();
+                if (!projectStatusInput.isEmpty()) {
+                    existingProject.setProjectStatus(ProjectStatus.valueOf(projectStatusInput));
+                }
+
+                // Update the project (excluding totalCost)
+                projetDAO.updateProjectWithoutCost(existingProject);
+
+                System.out.println("Project updated successfully.");
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number format. Please enter valid numbers.");
+            } catch (SQLException e) {
+                System.out.println("Error updating project: " + e.getMessage());
+            }
+        }
+
 
 }
