@@ -1,12 +1,12 @@
 package DAO;
 
-import Model.ProjectStatus;
 import Model.Project;
+import Model.ProjectStatus;
 import Utilitaire.DatabaseConnection;
 
-import java.awt.*;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ProjetDAO {
 
@@ -30,6 +30,25 @@ public class ProjetDAO {
         }
     }
 
+    public static List<Project> getAllProjects() throws SQLException {
+        String SELECT_ALL_PROJECTS = "SELECT * FROM project";
+        List<Project> projects = new ArrayList<>();
 
+        try (Connection connection = DatabaseConnection.connect();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(SELECT_ALL_PROJECTS)) {
 
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String projectName = resultSet.getString("projectName");
+                double surface = resultSet.getDouble("surface");
+                double profitMargin = resultSet.getDouble("profitMargin");
+                Double totalCost = resultSet.getObject("totalCost", Double.class);
+                ProjectStatus projectStatus = ProjectStatus.valueOf(resultSet.getString("projectStatus"));
+
+                projects.add(new Project(id, projectName, surface, profitMargin, totalCost, projectStatus));
+            }
+        }
+        return projects;
+    }
 }

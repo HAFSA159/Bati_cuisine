@@ -25,7 +25,8 @@ public class ConsoleUI {
             System.out.println("1. Create Client");
             System.out.println("2. Show Clients");
             System.out.println("3. Add Project");
-            System.out.println("4. Exit");
+            System.out.println("4. Show Projects");
+            System.out.println("5. Exit");
             System.out.print("Choose an option: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -41,6 +42,9 @@ public class ConsoleUI {
                     addProject();
                     break;
                 case 4:
+                    showProjects();
+                    break;
+                case 5:
                     continueRunning = false;
                     break;
                 default:
@@ -114,6 +118,26 @@ public class ConsoleUI {
 
         } catch (SQLException e) {
             System.out.println("Error adding project: " + e.getMessage());
+        }
+    }
+
+    private void showProjects() {
+        try {
+            List<Project> projects = ProjetDAO.getAllProjects();
+            if (projects.isEmpty()) {
+                System.out.println("No projects found.");
+            } else {
+                for (Project project : projects) {
+                    System.out.println("ID: " + project.getId() +
+                            ", Name: " + project.getProjectName() +
+                            ", Surface: " + project.getSurface() +
+                            ", Profit Margin: " + project.getProfitMargin() +
+                           // ", Total Cost: " + (project.getTotalCost() != null ? project.getTotalCost() : "N/A") +
+                            ", Status: " + project.getProjectStatus());
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving projects: " + e.getMessage());
         }
     }
 
