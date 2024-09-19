@@ -1,13 +1,14 @@
 import Model.EtatProjet;
 import Model.Projet;
-import Model.Client;
+import DAO.ProjetDAO;
+import Utilitaire.DatabaseConnection;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Scanner;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
-    private static List<Client> clients = new ArrayList<>();
-    private static List<Projet> projets = new ArrayList<>();
+   /* private static ProjetDAO projetDAO = new ProjetDAO();
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -16,17 +17,17 @@ public class Main {
         while (continuer) {
             afficherMenuPrincipal();
             int choix = scanner.nextInt();
-            scanner.nextLine();  // Consume newline
+            scanner.nextLine();
 
             switch (choix) {
                 case 1:
                     creerNouveauProjet();
                     break;
                 case 2:
-                    afficherProjetsExistants();
+                    //afficherProjetsExistants();
                     break;
                 case 3:
-                    calculerCoutProjet();
+                    //calculerCoutProjet();
                     break;
                 case 4:
                     continuer = false;
@@ -70,24 +71,40 @@ public class Main {
         EtatProjet etatProjet = EtatProjet.valueOf(etat.toUpperCase());
 
         Projet nouveauProjet = new Projet(id, nomProjet, surface, margeBeneficiaire, coutTotal, etatProjet);
-        projets.add(nouveauProjet);
-        System.out.println("Projet créé avec succès !");
+
+        try {
+            projetDAO.createProjet(nouveauProjet);
+            System.out.println("Projet créé avec succès !");
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la création du projet : " + e.getMessage());
+        }
     }
 
-    private static void afficherProjetsExistants() {
-        if (projets.isEmpty()) {
-            System.out.println("Aucun projet existant.");
-            return;
-        }
 
+
+
+
+
+
+/*
+    private static void afficherProjetsExistants() {
         System.out.println("\n=== Projets Existants ===");
-        for (Projet projet : projets) {
-            System.out.println("ID: " + projet.getId() +
-                    ", Nom: " + projet.getNomProjet() +
-                    ", Surface: " + projet.getSurface() +
-                    ", Marge Bénéficiaire: " + projet.getMargeBeneficiaire() +
-                    ", Coût Total: " + projet.getCoutTotal() +
-                    ", État: " + projet.getEtatProjet());
+        try {
+            List<Projet> projets = projetDAO.getAllProjets();
+            if (projets.isEmpty()) {
+                System.out.println("Aucun projet existant.");
+            } else {
+                for (Projet projet : projets) {
+                    System.out.println("ID: " + projet.getId() +
+                            ", Nom: " + projet.getNomProjet() +
+                            ", Surface: " + projet.getSurface() +
+                            ", Marge Bénéficiaire: " + projet.getMargeBeneficiaire() +
+                            ", Coût Total: " + projet.getCoutTotal() +
+                            ", État: " + projet.getEtatProjet());
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de l'affichage des projets : " + e.getMessage());
         }
     }
 
@@ -95,21 +112,30 @@ public class Main {
         System.out.print("Entrez l'ID du projet pour calculer le coût : ");
         String id = scanner.nextLine();
 
-        Projet projet = trouverProjetParId(id);
-        if (projet == null) {
-            System.out.println("Projet non trouvé !");
-            return;
-        }
+        try {
+            Projet projet = projetDAO.getProjetById(id);
+            if (projet == null) {
+                System.out.println("Projet non trouvé !");
+                return;
+            }
 
-        System.out.println("Le coût total du projet \"" + projet.getNomProjet() + "\" est : " + projet.getCoutTotal());
+            System.out.println("Le coût total du projet \"" + projet.getNomProjet() + "\" est : " + projet.getCoutTotal());
+        } catch (SQLException e) {
+            System.out.println("Erreur lors du calcul du coût du projet : " + e.getMessage());
+        }
     }
 
-    private static Projet trouverProjetParId(String id) {
-        for (Projet projet : projets) {
-            if (projet.getId().equals(id)) {
-                return projet;
-            }
+ */
+
+
+    public static void main(String[] args) {
+        // Tester la connexion à la base de données
+        Connection connection = DatabaseConnection.connect();
+
+        if (connection != null) {
+            System.out.println("Connexion à la base de données réussie !");
+        } else {
+            System.out.println("Échec de la connexion à la base de données.");
         }
-        return null;
     }
 }
