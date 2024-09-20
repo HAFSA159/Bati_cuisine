@@ -1,26 +1,33 @@
 package Model;
 
 public class Project {
-    private int id; // Use int for auto-incremented IDs
+    private int id;
     private String projectName;
     private double surface;
     private double profitMargin;
     private Double totalCost; // Nullable
     private ProjectStatus projectStatus;
+    private String clientId;
 
-    // Constructor with all fields
-    public Project(int id, String projectName, double surface, double profitMargin, Double totalCost, ProjectStatus projectStatus) {
+    // Constructor with all parameters
+    public Project(int id, String projectName, double surface, double profitMargin, Double totalCost, ProjectStatus projectStatus, String clientId) {
         this.id = id;
         this.projectName = projectName;
         this.surface = surface;
         this.profitMargin = profitMargin;
         this.totalCost = totalCost;
         this.projectStatus = projectStatus;
+        this.clientId = clientId;
     }
 
-    // Constructor without totalCost
+    // Constructor without totalCost and clientId
     public Project(String projectName, double surface, double profitMargin, ProjectStatus projectStatus) {
-        this(0, projectName, surface, profitMargin, null, projectStatus); // id is defaulted to 0
+        this(0, projectName, surface, profitMargin, null, projectStatus, null); // id is defaulted to 0, clientId is null
+    }
+
+    // Constructor with clientId
+    public Project(String projectName, double surface, double profitMargin, ProjectStatus projectStatus, String clientId) {
+        this(0, projectName, surface, profitMargin, null, projectStatus, clientId); // id is defaulted to 0
     }
 
     // Getters and Setters
@@ -70,5 +77,13 @@ public class Project {
 
     public void setProjectStatus(ProjectStatus projectStatus) {
         this.projectStatus = projectStatus;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
     }
 }

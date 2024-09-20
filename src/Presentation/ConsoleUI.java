@@ -9,7 +9,7 @@ import java.util.Scanner;
 import java.sql.SQLException;
 import java.util.List;
 
-    public class ConsoleUI {
+public class ConsoleUI {
         private Scanner scanner = new Scanner(System.in);
         private ClientDaoInterface clientDAO;
         private ProjetDAOInterface projetDAO;
@@ -46,7 +46,7 @@ import java.util.List;
             }
         }
 
-        private void manageClients() {
+    private void manageClients() {
             boolean continueManaging = true;
             while (continueManaging) {
                 System.out.println("\n=== Manage Clients ===");
@@ -108,6 +108,8 @@ import java.util.List;
             }
         }
 
+
+
     private void createClient() {
         System.out.print("Enter client name: ");
         String name = scanner.nextLine();
@@ -162,6 +164,9 @@ import java.util.List;
             System.out.print("Enter Profit Margin: ");
             double profitMargin = scanner.nextDouble();
             scanner.nextLine();
+
+            System.out.print("Enter Client ID: ");
+            String clientId = scanner.nextLine();
 
             ProjectStatus projectStatus = ProjectStatus.IN_PROGRESS;
 
@@ -254,4 +259,4 @@ import java.util.List;
             }
     }
 
-    }
+}

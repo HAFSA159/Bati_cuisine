@@ -13,7 +13,7 @@ public class ProjetDAO implements ProjetDAOInterface {
 
     @Override
     public void createProject(Project projet) throws SQLException {
-        String INSERT_PROJECT = "INSERT INTO project (projectName, surface, profitMargin, totalCost, projectStatus) VALUES (?, ?, ?, ?, ?)";
+        String INSERT_PROJECT = "INSERT INTO project (projectName, surface, profitMargin, totalCost, projectStatus, clientId) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection connection = DatabaseConnection.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_PROJECT)) {
             preparedStatement.setString(1, projet.getProjectName());
@@ -21,6 +21,7 @@ public class ProjetDAO implements ProjetDAOInterface {
             preparedStatement.setDouble(3, projet.getProfitMargin());
             preparedStatement.setObject(4, projet.getTotalCost(), Types.DOUBLE);
             preparedStatement.setString(5, projet.getProjectStatus().name());
+            preparedStatement.setString(6, projet.getClientId()); // Set clientId here
             preparedStatement.executeUpdate();
         }
     }
@@ -29,9 +30,11 @@ public class ProjetDAO implements ProjetDAOInterface {
     public List<Project> getAllProjects() throws SQLException {
         String SELECT_ALL_PROJECTS = "SELECT * FROM project";
         List<Project> projects = new ArrayList<>();
+
         try (Connection connection = DatabaseConnection.connect();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(SELECT_ALL_PROJECTS)) {
+
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
                 String projectName = resultSet.getString("projectName");
@@ -39,7 +42,9 @@ public class ProjetDAO implements ProjetDAOInterface {
                 double profitMargin = resultSet.getDouble("profitMargin");
                 Double totalCost = resultSet.getObject("totalCost", Double.class);
                 ProjectStatus projectStatus = ProjectStatus.valueOf(resultSet.getString("projectStatus"));
-                projects.add(new Project(id, projectName, surface, profitMargin, totalCost, projectStatus));
+                String clientId = resultSet.getString("clientId");
+
+                projects.add(new Project(id, projectName, surface, profitMargin, totalCost, projectStatus, clientId));
             }
         }
         return projects;
@@ -47,14 +52,15 @@ public class ProjetDAO implements ProjetDAOInterface {
 
     @Override
     public void updateProjectWithoutCost(Project project) throws SQLException {
-        String UPDATE_PROJECT = "UPDATE project SET projectName = ?, surface = ?, profitMargin = ?, projectStatus = ? WHERE id = ?";
+        String UPDATE_PROJECT = "UPDATE project SET projectName = ?, surface = ?, profitMargin = ?, projectStatus = ?, clientId = ? WHERE id = ?";
         try (Connection connection = DatabaseConnection.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_PROJECT)) {
             preparedStatement.setString(1, project.getProjectName());
             preparedStatement.setDouble(2, project.getSurface());
             preparedStatement.setDouble(3, project.getProfitMargin());
             preparedStatement.setString(4, project.getProjectStatus().name());
-            preparedStatement.setInt(5, project.getId());
+            preparedStatement.setString(5, project.getClientId()); // Include clientId in the update
+            preparedStatement.setInt(6, project.getId());
             preparedStatement.executeUpdate();
         }
     }
@@ -72,9 +78,11 @@ public class ProjetDAO implements ProjetDAOInterface {
                     double profitMargin = resultSet.getDouble("profitMargin");
                     Double totalCost = resultSet.getObject("totalCost", Double.class);
                     ProjectStatus projectStatus = ProjectStatus.valueOf(resultSet.getString("projectStatus"));
-                    return new Project(id, projectName, surface, profitMargin, totalCost, projectStatus);
+                    String clientId = resultSet.getString("clientId"); // Retrieve clientId
+
+                    return new Project(id, projectName, surface, profitMargin, totalCost, projectStatus, clientId);
                 } else {
-                    return null; // Projet non trouvé
+                    return null; // Project not found
                 }
             }
         }
