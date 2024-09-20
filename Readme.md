@@ -38,7 +38,7 @@
 ### Prérequis
 - **Java Development Kit (JDK) 8** : Assurez-vous d'avoir JDK 8 installé sur votre machine.
 - **PostgreSQL** : Installez PostgreSQL et configurez une base de données pour l'application.
-- **JDBC Driver** : Téléchargez le pilote JDBC pour PostgreSQL (par exemple, `postgresql-<version>.jar`) et placez-le dans le dossier `libs` de votre projet.
+- **JDBC Driver** : Téléchargez le pilote JDBC pour PostgreSQL.
 
 ### Étapes d'installation
 1. **Clonez le dépôt** :

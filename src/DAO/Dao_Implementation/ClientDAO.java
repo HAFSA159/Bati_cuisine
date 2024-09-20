@@ -1,5 +1,6 @@
-package DAO;
+package DAO.Dao_Implementation;
 
+import DAO.Dao_Interface.ClientDaoInterface;
 import Model.Client;
 import Utilitaire.DatabaseConnection;
 
@@ -7,10 +8,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientDAO {
+public class ClientDAO implements ClientDaoInterface {
     private static final String INSERT_CLIENT = "INSERT INTO Client (name, address, phone, isProfessional) VALUES (?, ?, ?, ?)";
     private static final String SELECT_ALL_CLIENTS = "SELECT * FROM Client";
 
+    @Override
     public void createClient(Client client) throws SQLException {
         try (Connection connection = DatabaseConnection.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_CLIENT)) {
@@ -22,6 +24,7 @@ public class ClientDAO {
         }
     }
 
+    @Override
     public List<Client> getAllClients() throws SQLException {
         List<Client> clients = new ArrayList<>();
         try (Connection connection = DatabaseConnection.connect();

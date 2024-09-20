@@ -1,22 +1,20 @@
 package Presentation;
-
-import DAO.ClientDAO;
-import DAO.ProjetDAO;
+import DAO.Dao_Interface.ClientDaoInterface;
+import DAO.Dao_Interface.ProjetDAOInterface;
 import Model.Client;
 import Model.ProjectStatus;
 import Model.Project;
+import java.util.Scanner;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Scanner;
 
     public class ConsoleUI {
-        private Scanner scanner;
-        private ClientDAO clientDAO;
-        private ProjetDAO projetDAO;
+        private Scanner scanner = new Scanner(System.in);
+        private ClientDaoInterface clientDAO;
+        private ProjetDAOInterface projetDAO;
 
-        public ConsoleUI(ClientDAO clientDAO, ProjetDAO projetDAO) {
-            this.scanner = new Scanner(System.in);
+        public ConsoleUI(ClientDaoInterface clientDAO, ProjetDAOInterface projetDAO) {
             this.clientDAO = clientDAO;
             this.projetDAO = projetDAO;
         }
@@ -75,7 +73,7 @@ import java.util.Scanner;
             }
         }
 
-        private void manageProjects() {
+    private void manageProjects() {
             boolean continueManaging = true;
             while (continueManaging) {
                 System.out.println("\n=== Manage Projects ===");
@@ -109,7 +107,6 @@ import java.util.Scanner;
                 }
             }
         }
-
 
     private void createClient() {
         System.out.print("Enter client name: ");
@@ -170,7 +167,7 @@ import java.util.Scanner;
 
             Project projet = new Project(projectName, area, profitMargin, projectStatus);
 
-            ProjetDAO.createProject(projet);
+            projetDAO.createProject(projet);
 
             System.out.println("Project added successfully!");
 
@@ -181,7 +178,7 @@ import java.util.Scanner;
 
     private void showProjects() {
         try {
-            List<Project> projects = ProjetDAO.getAllProjects();
+            List<Project> projects = projetDAO.getAllProjects();
             if (projects.isEmpty()) {
                 System.out.println("No projects found.");
             } else {

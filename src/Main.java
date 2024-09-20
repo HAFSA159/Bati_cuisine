@@ -1,11 +1,13 @@
-import DAO.ClientDAO;
-import DAO.ProjetDAO;
+import DAO.Dao_Implementation.ClientDAO;
+import DAO.Dao_Interface.ClientDaoInterface;
+import DAO.Dao_Implementation.ProjetDAO;
+import DAO.Dao_Interface.ProjetDAOInterface;
 import Presentation.ConsoleUI;
 
 public class Main {
     public static void main(String[] args) {
-        ClientDAO clientDAO = new ClientDAO();
-        ProjetDAO projetDAO = new ProjetDAO();
+        ClientDaoInterface clientDAO = new ClientDAO();
+        ProjetDAOInterface projetDAO = new ProjetDAO();
 
         ConsoleUI consoleUI = new ConsoleUI(clientDAO, projetDAO);
         consoleUI.startMenu();
