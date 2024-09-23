@@ -1,15 +1,19 @@
 import DAO.Dao_Implementation.ClientDAO;
-import DAO.Dao_Interface.ClientDaoInterface;
-import DAO.Dao_Implementation.ProjetDAO;
-import DAO.Dao_Interface.ProjetDAOInterface;
+import DAO.Dao_Implementation.ComponentDAO;
+import DAO.Dao_Interface.ClientDAOInterface;
+import DAO.Dao_Implementation.ProjectDAO;
+import DAO.Dao_Interface.ProjectDAOInterface;
 import Presentation.ConsoleUI;
 
-public class Main {
-    public static void main(String[] args) {
-        ClientDaoInterface clientDAO = new ClientDAO();
-        ProjetDAOInterface projetDAO = new ProjetDAO();
+import java.sql.SQLException;
 
-        ConsoleUI consoleUI = new ConsoleUI(clientDAO, projetDAO);
+public class Main {
+    public static void main(String[] args) throws SQLException {
+        ClientDAOInterface clientDAO = new ClientDAO();
+        ProjectDAOInterface projetDAO = new ProjectDAO();
+        ComponentDAO componentDAO = new ComponentDAO();
+
+        ConsoleUI consoleUI = new ConsoleUI(clientDAO, projetDAO, componentDAO);
         consoleUI.startMenu();
     }
 }

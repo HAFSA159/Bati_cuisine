@@ -1,6 +1,6 @@
 package DAO.Dao_Implementation;
 
-import DAO.Dao_Interface.ProjetDAOInterface;
+import DAO.Dao_Interface.ProjectDAOInterface;
 import Model.Project;
 import Model.ProjectStatus;
 import Utilitaire.DatabaseConnection;
@@ -9,18 +9,19 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProjetDAO implements ProjetDAOInterface {
+public class ProjectDAO implements ProjectDAOInterface {
 
 
     @Override
-    public String createProject(Project projet) throws SQLException {
+    public int createProject(Project projet) throws SQLException {
         String CHECK_CLIENT = "SELECT COUNT(*) FROM client WHERE id = ?";
-        String INSERT_PROJECT = "INSERT INTO project (projectName, surface, profitMargin, totalCost, projectStatus, clientid) VALUES (?, ?, ?, ?, ?, ?)";
+        String INSERT_PROJECT = "INSERT INTO project (projectName, surface, profitMargin, totalCost, projectStatus, clientid) VALUES (?, ?, ?, ?, ?, ?) RETURNING id"; // Add RETURNING clause
 
         try (Connection connection = DatabaseConnection.connect()) {
             boolean clientExists = false;
             int clientIdInt = Integer.parseInt(projet.getClientId());
 
+            // Check if the client exists
             try (PreparedStatement checkStatement = connection.prepareStatement(CHECK_CLIENT)) {
                 checkStatement.setInt(1, clientIdInt);
                 ResultSet resultSet = checkStatement.executeQuery();
@@ -30,9 +31,10 @@ public class ProjetDAO implements ProjetDAOInterface {
             }
 
             if (!clientExists) {
-                return "Le client avec l'ID " + projet.getClientId() + " n'existe pas. Impossible de créer le projet.";
+                throw new SQLException("Le client avec l'ID " + projet.getClientId() + " n'existe pas. Impossible de créer le projet.");
             }
 
+            // Insert the project and get the generated ID
             try (PreparedStatement insertStatement = connection.prepareStatement(INSERT_PROJECT)) {
                 insertStatement.setString(1, projet.getProjectName());
                 insertStatement.setDouble(2, projet.getSurface());
@@ -40,10 +42,14 @@ public class ProjetDAO implements ProjetDAOInterface {
                 insertStatement.setObject(4, projet.getTotalCost(), Types.DOUBLE);
                 insertStatement.setString(5, projet.getProjectStatus().name());
                 insertStatement.setInt(6, clientIdInt);
-                insertStatement.executeUpdate();
-            }
 
-            return "Le projet a été créé avec succès.";
+                ResultSet generatedKeys = insertStatement.executeQuery();
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1); // Return the generated ID
+                } else {
+                    throw new SQLException("Échec de la création du projet, aucune clé générée.");
+                }
+            }
         }
     }
 

@@ -1,13 +1,13 @@
 package Model;
 
-public abstract class Composant {
+public abstract class Component {
     protected String id;
     protected String nom;
     protected String typeComposant; // Can be 'MATERIEL' or 'MAINDOEUVRE'
     protected double tauxTVA;
 
     // Constructor
-    public Composant(String id, String nom, String typeComposant, double tauxTVA) {
+    public Component(String id, String nom, String typeComposant, double tauxTVA) {
         this.id = id;
         this.nom = nom;
         this.typeComposant = typeComposant;

@@ -1,36 +1,40 @@
 package Presentation;
-import DAO.Dao_Interface.ClientDaoInterface;
-import DAO.Dao_Interface.ProjetDAOInterface;
+
+import DAO.Dao_Implementation.ComponentDAO;
+import DAO.Dao_Interface.ClientDAOInterface;
+import DAO.Dao_Interface.ProjectDAOInterface;
 import Model.Client;
 import Model.ProjectStatus;
 import Model.Project;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
-
 import java.sql.SQLException;
 import java.util.List;
 
 public class ConsoleUI {
-        private Scanner scanner = new Scanner(System.in);
-        private ClientDaoInterface clientDAO;
-        private ProjetDAOInterface projetDAO;
 
-        public ConsoleUI(ClientDaoInterface clientDAO, ProjetDAOInterface projetDAO) {
-            this.clientDAO = clientDAO;
-            this.projetDAO = projetDAO;
-        }
+    private Scanner scanner = new Scanner(System.in);
+    private ClientDAOInterface clientDAO;
+    private ProjectDAOInterface projetDAO;
+    private ComponentDAO componentDAO; // Now added as dependency
 
-        public void startMenu() {
-            boolean continueRunning = true;
-            while (continueRunning) {
+    public ConsoleUI(ClientDAOInterface clientDAO, ProjectDAOInterface projetDAO, ComponentDAO componentDAO) {
+        this.clientDAO = clientDAO;
+        this.projetDAO = projetDAO;
+        this.componentDAO = componentDAO; // Injected ComponentDAO
+    }
+
+    public void startMenu() throws SQLException {
+        boolean continueRunning = true;
+        while (continueRunning) {
+            try {
                 System.out.println("\n=== Main Menu ===");
                 System.out.println("1. Manage Clients");
                 System.out.println("2. Manage Projects");
                 System.out.println("3. Exit");
                 System.out.print("Choose an option: ");
-                int choice = scanner.nextInt();
-                scanner.nextLine();
+                int choice = Integer.parseInt(scanner.nextLine());
 
                 switch (choice) {
                     case 1:
@@ -45,19 +49,22 @@ public class ConsoleUI {
                     default:
                         System.out.println("Invalid choice. Please try again.");
                 }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number.");
             }
         }
+    }
 
     private void manageClients() {
-            boolean continueManaging = true;
-            while (continueManaging) {
+        boolean continueManaging = true;
+        while (continueManaging) {
+            try {
                 System.out.println("\n=== Manage Clients ===");
                 System.out.println("1. Create Client");
                 System.out.println("2. Show Clients");
                 System.out.println("3. Back to Main Menu");
                 System.out.print("Choose an option: ");
-                int choice = scanner.nextInt();
-                scanner.nextLine();
+                int choice = Integer.parseInt(scanner.nextLine());
 
                 switch (choice) {
                     case 1:
@@ -72,12 +79,16 @@ public class ConsoleUI {
                     default:
                         System.out.println("Invalid choice. Please try again.");
                 }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number.");
             }
         }
+    }
 
-    private void manageProjects() {
-            boolean continueManaging = true;
-            while (continueManaging) {
+    private void manageProjects() throws SQLException {
+        boolean continueManaging = true;
+        while (continueManaging) {
+            try {
                 System.out.println("\n=== Manage Projects ===");
                 System.out.println("1. Add Project");
                 System.out.println("2. Show Projects");
@@ -85,12 +96,11 @@ public class ConsoleUI {
                 System.out.println("4. Delete Project");
                 System.out.println("5. Back to Main Menu");
                 System.out.print("Choose an option: ");
-                int choice = scanner.nextInt();
-                scanner.nextLine();
+                int choice = Integer.parseInt(scanner.nextLine());
 
                 switch (choice) {
                     case 1:
-                        addProject();
+                        addProjectWithComponents();
                         break;
                     case 2:
                         showProjects();
@@ -107,8 +117,11 @@ public class ConsoleUI {
                     default:
                         System.out.println("Invalid choice. Please try again.");
                 }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number.");
             }
         }
+    }
 
     private void createClient() {
         System.out.print("Enter client name: ");
@@ -121,8 +134,7 @@ public class ConsoleUI {
         String phone = scanner.nextLine();
 
         System.out.print("Is the client a professional? (true/false): ");
-        boolean isProfessional = scanner.nextBoolean();
-        scanner.nextLine(); // Consume newline
+        boolean isProfessional = Boolean.parseBoolean(scanner.nextLine());
 
         Client client = new Client(name, address, phone, isProfessional);
 
@@ -153,54 +165,74 @@ public class ConsoleUI {
         }
     }
 
-    //Delete client
+    private void addProjectWithComponents() throws SQLException {
+        System.out.println("\n=== Add Project ===");
 
-    //Update client
+        System.out.print("Enter Project Name: ");
+        String projectName = scanner.nextLine();
+        System.out.print("Enter Surface Area: ");
+        double surface = Double.parseDouble(scanner.nextLine());
+        System.out.print("Enter Profit Margin: ");
+        double profitMargin = Double.parseDouble(scanner.nextLine());
 
-    private void addProject() {
-        try {
-            System.out.print("Enter Project Name: ");
-            String projectName = scanner.nextLine();
+        System.out.print("Enter Client ID: ");
+        int clientId = Integer.parseInt(scanner.nextLine());
 
-            if (projectName.trim().isEmpty()) {
-                System.out.println("Project name cannot be empty.");
-                return;
-            }
+        Project project = new Project(projectName, surface, profitMargin, ProjectStatus.IN_PROGRESS, clientId);
 
-            System.out.print("Enter Area: ");
-            double area = scanner.nextDouble();
-            if (area <= 0) {
-                System.out.println("Area must be a positive number.");
-                return;
-            }
+        int projectId = projetDAO.createProject(project);
 
-            System.out.print("Enter Profit Margin: ");
-            double profitMargin = scanner.nextDouble();
-            if (profitMargin < 0) {
-                System.out.println("Profit margin cannot be negative.");
-                return;
-            }
-            scanner.nextLine();
+        addMaterialsToProject(projectId);
+        addLaborToProject(projectId);
 
-            System.out.print("Enter Client ID: ");
-            String clientId = scanner.nextLine();
-            if (clientId.trim().isEmpty()) {
-                System.out.println("Client ID cannot be empty.");
-                return;
-            }
+        System.out.println("Project added successfully with all components!");
+    }
 
-            ProjectStatus projectStatus = ProjectStatus.IN_PROGRESS;
-            Project projet = new Project(projectName, area, profitMargin, projectStatus, clientId);
+    private void addMaterialsToProject(int projectId) throws SQLException {
+        boolean continueAddingMaterials = true;
 
-            // Gérer le message de retour ici
-            String resultMessage = projetDAO.createProject(projet);
-            System.out.println(resultMessage); // Afficher le message de retour
+        while (continueAddingMaterials) {
+            System.out.println("\n=== Add Material ===");
+            System.out.print("Enter Material Name: ");
+            String materialName = scanner.nextLine();
+            System.out.print("Enter VAT Rate: ");
+            double materialVATRate = Double.parseDouble(scanner.nextLine());
+            System.out.print("Enter Unit Cost: ");
+            double unitCost = Double.parseDouble(scanner.nextLine());
+            System.out.print("Enter Quantity: ");
+            double quantity = Double.parseDouble(scanner.nextLine());
+            System.out.print("Enter Transport Cost: ");
+            double transportCost = Double.parseDouble(scanner.nextLine());
+            System.out.print("Enter Quality Coefficient: ");
+            double qualityCoefficient = Double.parseDouble(scanner.nextLine());
 
-        } catch (SQLException e) {
-            System.out.println("Error adding project: " + e.getMessage());
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input type. Please enter valid numbers for area and profit margin.");
-            scanner.nextLine();
+            componentDAO.addMaterial(materialName, materialVATRate, unitCost, quantity, transportCost, qualityCoefficient, projectId);
+
+            System.out.print("Do you want to add another material? (yes/no): ");
+            continueAddingMaterials = scanner.nextLine().equalsIgnoreCase("yes");
+        }
+    }
+
+    private void addLaborToProject(int projectId) throws SQLException {
+        boolean continueAddingLabor = true;
+
+        while (continueAddingLabor) {
+            System.out.println("\n=== Add Labor ===");
+            System.out.print("Enter Labor Name: ");
+            String laborName = scanner.nextLine();
+            System.out.print("Enter VAT Rate: ");
+            double laborVATRate = Double.parseDouble(scanner.nextLine());
+            System.out.print("Enter Hourly Rate: ");
+            double hourlyRate = Double.parseDouble(scanner.nextLine());
+            System.out.print("Enter Hours Worked: ");
+            double hoursWorked = Double.parseDouble(scanner.nextLine());
+            System.out.print("Enter Worker Productivity: ");
+            double workerProductivity = Double.parseDouble(scanner.nextLine());
+
+            componentDAO.addLabor(laborName, laborVATRate, hourlyRate, hoursWorked, workerProductivity, projectId);
+
+            System.out.print("Do you want to add another labor? (yes/no): ");
+            continueAddingLabor = scanner.nextLine().equalsIgnoreCase("yes");
         }
     }
 
@@ -215,8 +247,7 @@ public class ConsoleUI {
                             ", Name: " + project.getProjectName() +
                             ", Surface: " + project.getSurface() +
                             ", Profit Margin: " + project.getProfitMargin() +
-                           // ", Total Cost: " + (project.getTotalCost() != null ? project.getTotalCost() : "N/A") +
-                            ", Status: " + project.getProjectStatus());
+                            ", Client ID: " + project.getClientId());
                 }
             }
         } catch (SQLException e) {
@@ -224,60 +255,11 @@ public class ConsoleUI {
         }
     }
 
-    public void updateProject() {
-            System.out.println("Enter Project ID to update:");
-            int id = Integer.parseInt(scanner.nextLine()); // Changed to int
-
-            try {
-                Project existingProject = projetDAO.getProjectById(id);
-                if (existingProject == null) {
-                    System.out.println("Project not found.");
-                    return;
-                }
-
-                System.out.println("Enter new Project Name (leave blank to keep current):");
-                String projectName = scanner.nextLine();
-                if (!projectName.isEmpty()) {
-                    existingProject.setProjectName(projectName);
-                }
-
-                System.out.println("Enter new Surface (leave blank to keep current):");
-                String surfaceInput = scanner.nextLine();
-                if (!surfaceInput.isEmpty()) {
-                    existingProject.setSurface(Double.parseDouble(surfaceInput));
-                }
-
-                System.out.println("Enter new Profit Margin (leave blank to keep current):");
-                String profitMarginInput = scanner.nextLine();
-                if (!profitMarginInput.isEmpty()) {
-                    existingProject.setProfitMargin(Double.parseDouble(profitMarginInput));
-                }
-
-                System.out.println("Enter new Project Status (IN_PROGRESS, COMPLETED, CANCELLED, leave blank to keep current):");
-                String projectStatusInput = scanner.nextLine();
-                if (!projectStatusInput.isEmpty()) {
-                    existingProject.setProjectStatus(ProjectStatus.valueOf(projectStatusInput));
-                }
-
-                projetDAO.updateProjectWithoutCost(existingProject);
-
-                System.out.println("Project updated successfully.");
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid number format. Please enter valid numbers.");
-            } catch (SQLException e) {
-                System.out.println("Error updating project: " + e.getMessage());
-            }
-        }
-
-    public void deleteProject() {
-            System.out.println("Enter Project ID to delete:");
-            int id = Integer.parseInt(scanner.nextLine());
-
-            try {
-                projetDAO.deleteProject(id);
-            } catch (SQLException e) {
-                System.out.println("Error deleting project: " + e.getMessage());
-            }
+    private void updateProject() {
+        // Implement update project logic
     }
 
+    private void deleteProject() {
+        // Implement delete project logic
+    }
 }

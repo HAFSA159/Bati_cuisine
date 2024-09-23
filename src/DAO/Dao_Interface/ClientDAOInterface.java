@@ -4,7 +4,7 @@ import Model.Client;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface ClientDaoInterface {
+public interface ClientDAOInterface {
     void createClient(Client client) throws SQLException;
     List<Client> getAllClients() throws SQLException;
 }

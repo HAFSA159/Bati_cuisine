@@ -1,13 +1,13 @@
 package Model;
 
-public class Materiau extends Composant {
+public class Material extends Component {
     private double coutUnitaire;
     private double quantite;
     private double coutTransport;
     private double coefficientQualite;
 
     // Constructor
-    public Materiau(String id, String nom, double tauxTVA, double coutUnitaire, double quantite, double coutTransport, double coefficientQualite) {
+    public Material(String id, String nom, double tauxTVA, double coutUnitaire, double quantite, double coutTransport, double coefficientQualite) {
         super(id, nom, "MATERIEL", tauxTVA);
         this.coutUnitaire = coutUnitaire;
         this.quantite = quantite;
