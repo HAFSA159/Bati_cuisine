@@ -4,6 +4,8 @@ import DAO.Dao_Interface.ProjetDAOInterface;
 import Model.Client;
 import Model.ProjectStatus;
 import Model.Project;
+
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import java.sql.SQLException;
@@ -108,8 +110,6 @@ public class ConsoleUI {
             }
         }
 
-
-
     private void createClient() {
         System.out.print("Enter client name: ");
         String name = scanner.nextLine();
@@ -153,31 +153,54 @@ public class ConsoleUI {
         }
     }
 
+    //Delete client
+
+    //Update client
+
     private void addProject() {
         try {
             System.out.print("Enter Project Name: ");
             String projectName = scanner.nextLine();
 
+            if (projectName.trim().isEmpty()) {
+                System.out.println("Project name cannot be empty.");
+                return;
+            }
+
             System.out.print("Enter Area: ");
             double area = scanner.nextDouble();
+            if (area <= 0) {
+                System.out.println("Area must be a positive number.");
+                return;
+            }
 
             System.out.print("Enter Profit Margin: ");
             double profitMargin = scanner.nextDouble();
+            if (profitMargin < 0) {
+                System.out.println("Profit margin cannot be negative.");
+                return;
+            }
             scanner.nextLine();
 
             System.out.print("Enter Client ID: ");
             String clientId = scanner.nextLine();
+            if (clientId.trim().isEmpty()) {
+                System.out.println("Client ID cannot be empty.");
+                return;
+            }
 
             ProjectStatus projectStatus = ProjectStatus.IN_PROGRESS;
+            Project projet = new Project(projectName, area, profitMargin, projectStatus, clientId);
 
-            Project projet = new Project(projectName, area, profitMargin, projectStatus);
-
-            projetDAO.createProject(projet);
-
-            System.out.println("Project added successfully!");
+            // Gérer le message de retour ici
+            String resultMessage = projetDAO.createProject(projet);
+            System.out.println(resultMessage); // Afficher le message de retour
 
         } catch (SQLException e) {
             System.out.println("Error adding project: " + e.getMessage());
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input type. Please enter valid numbers for area and profit margin.");
+            scanner.nextLine();
         }
     }
 
@@ -206,7 +229,6 @@ public class ConsoleUI {
             int id = Integer.parseInt(scanner.nextLine()); // Changed to int
 
             try {
-                // Retrieve the existing project details
                 Project existingProject = projetDAO.getProjectById(id);
                 if (existingProject == null) {
                     System.out.println("Project not found.");
@@ -237,7 +259,6 @@ public class ConsoleUI {
                     existingProject.setProjectStatus(ProjectStatus.valueOf(projectStatusInput));
                 }
 
-                // Update the project (excluding totalCost)
                 projetDAO.updateProjectWithoutCost(existingProject);
 
                 System.out.println("Project updated successfully.");
@@ -250,7 +271,7 @@ public class ConsoleUI {
 
     public void deleteProject() {
             System.out.println("Enter Project ID to delete:");
-            int id = Integer.parseInt(scanner.nextLine()); // Changed to int
+            int id = Integer.parseInt(scanner.nextLine());
 
             try {
                 projetDAO.deleteProject(id);

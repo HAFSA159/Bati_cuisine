@@ -11,18 +11,39 @@ import java.util.List;
 
 public class ProjetDAO implements ProjetDAOInterface {
 
+
     @Override
-    public void createProject(Project projet) throws SQLException {
-        String INSERT_PROJECT = "INSERT INTO project (projectName, surface, profitMargin, totalCost, projectStatus, clientId) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection connection = DatabaseConnection.connect();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_PROJECT)) {
-            preparedStatement.setString(1, projet.getProjectName());
-            preparedStatement.setDouble(2, projet.getSurface());
-            preparedStatement.setDouble(3, projet.getProfitMargin());
-            preparedStatement.setObject(4, projet.getTotalCost(), Types.DOUBLE);
-            preparedStatement.setString(5, projet.getProjectStatus().name());
-            preparedStatement.setString(6, projet.getClientId()); // Set clientId here
-            preparedStatement.executeUpdate();
+    public String createProject(Project projet) throws SQLException {
+        String CHECK_CLIENT = "SELECT COUNT(*) FROM client WHERE id = ?";
+        String INSERT_PROJECT = "INSERT INTO project (projectName, surface, profitMargin, totalCost, projectStatus, clientid) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection connection = DatabaseConnection.connect()) {
+            boolean clientExists = false;
+            int clientIdInt = Integer.parseInt(projet.getClientId());
+
+            try (PreparedStatement checkStatement = connection.prepareStatement(CHECK_CLIENT)) {
+                checkStatement.setInt(1, clientIdInt);
+                ResultSet resultSet = checkStatement.executeQuery();
+                if (resultSet.next()) {
+                    clientExists = resultSet.getInt(1) > 0;
+                }
+            }
+
+            if (!clientExists) {
+                return "Le client avec l'ID " + projet.getClientId() + " n'existe pas. Impossible de créer le projet.";
+            }
+
+            try (PreparedStatement insertStatement = connection.prepareStatement(INSERT_PROJECT)) {
+                insertStatement.setString(1, projet.getProjectName());
+                insertStatement.setDouble(2, projet.getSurface());
+                insertStatement.setDouble(3, projet.getProfitMargin());
+                insertStatement.setObject(4, projet.getTotalCost(), Types.DOUBLE);
+                insertStatement.setString(5, projet.getProjectStatus().name());
+                insertStatement.setInt(6, clientIdInt);
+                insertStatement.executeUpdate();
+            }
+
+            return "Le projet a été créé avec succès.";
         }
     }
 
