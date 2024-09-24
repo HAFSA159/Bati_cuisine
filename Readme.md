@@ -26,7 +26,7 @@
 - **Estimation des coûts** : Calculez le coût total d'un projet incluant les matériaux et la main-d'œuvre.
 
 ### Génération de Devis
-- **Créer un devis** : Établissez des devis basés sur les projets en cours.
+- **Créer un devis** : Établissez des devis basés sur les projets en cours et calculer les couts.
 
 ## Technologies Utilisées
 
