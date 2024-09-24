@@ -5,6 +5,7 @@ import Utilitaire.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ComponentRepository implements ComponentRepositoryInterface {
@@ -42,6 +43,30 @@ public class ComponentRepository implements ComponentRepositoryInterface {
             stmt.setInt(6, projectId);
             stmt.executeUpdate();
         }
+    }
+
+    @Override
+    public double getTotalMaterialCostByProjectId(int projectId) throws SQLException {
+        String query = "SELECT SUM(unitCost * quantity + transportCost) FROM Materials WHERE projectId = ?";
+        PreparedStatement stmt = (PreparedStatement) DatabaseConnection.connect();
+        stmt.setInt(1, projectId);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getDouble(1);
+        }
+        return 0;
+    }
+
+    @Override
+    public double getTotalLaborCostByProjectId(int projectId) throws SQLException {
+        String query = "SELECT SUM(hourlyRate * hoursWorked) FROM Labor WHERE projectId = ?";
+        PreparedStatement stmt = (PreparedStatement) DatabaseConnection.connect();
+        stmt.setInt(1, projectId);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getDouble(1);
+        }
+        return 0;
     }
 
 }

@@ -24,6 +24,7 @@ public class Project {
         this(0, projectName, surface, profitMargin, null, projectStatus, String.valueOf(clientId));
     }
 
+
     // Constructor without totalCost and clientId
     public Project(String projectName, double surface, double profitMargin, ProjectStatus projectStatus) {
         this(0, projectName, surface, profitMargin, null, projectStatus, null); // id is defaulted to 0, clientId is null
@@ -91,4 +92,6 @@ public class Project {
     public void setClientId(String clientId) {
         this.clientId = clientId;
     }
+
+
 }

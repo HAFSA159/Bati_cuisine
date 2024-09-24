@@ -26,7 +26,6 @@ public class ClientRepository implements ClientRepositoryInterface {
         }
     }
 
-
     @Override
     public List<Client> getAllClients() throws SQLException {
         List<Client> clients = new ArrayList<>();
@@ -35,8 +34,7 @@ public class ClientRepository implements ClientRepositoryInterface {
              ResultSet resultSet = statement.executeQuery(SELECT_ALL_CLIENTS)) {
 
             while (resultSet.next()) {
-                // Change from String to int for id
-                int id = resultSet.getInt("id"); // Use getInt instead of getString
+                int id = resultSet.getInt("id"); // Changed from String to int for id
                 String name = resultSet.getString("name");
                 String address = resultSet.getString("address");
                 String phone = resultSet.getString("phone");
@@ -48,8 +46,6 @@ public class ClientRepository implements ClientRepositoryInterface {
         }
         return clients;
     }
-
-
     public Client getClientById(int clientId) throws SQLException {
         String query = "SELECT * FROM client WHERE id = ?";
         Client client = null;
@@ -74,7 +70,6 @@ public class ClientRepository implements ClientRepositoryInterface {
         return client;
     }
 
-
     @Override
     public void updateClient(Client client) throws SQLException {
         try (Connection connection = DatabaseConnection.connect();
@@ -83,26 +78,19 @@ public class ClientRepository implements ClientRepositoryInterface {
             preparedStatement.setString(2, client.getAddress());
             preparedStatement.setString(3, client.getPhone());
             preparedStatement.setBoolean(4, client.isProfessional());
-
-            // Change from setString to setInt for id
-            preparedStatement.setInt(5, client.getId()); // Use setInt instead of setString
+            preparedStatement.setInt(5, client.getId());
             preparedStatement.executeUpdate();
         }
     }
 
-
     @Override
     public boolean deleteClientById(int clientId) throws SQLException {
-        String sql = "DELETE FROM client WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(DELETE_CLIENT)) {
             stmt.setInt(1, clientId);
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
         }
     }
-
-
-
 }

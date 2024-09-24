@@ -1,50 +1,55 @@
 package Model;
 
 public class Material extends Component {
-    private double coutUnitaire;
-    private double quantite;
-    private double coutTransport;
-    private double coefficientQualite;
+    private double unitCost;
+    private double quantity;
+    private double transportCost;
+    private double qualityCoefficient;
 
     // Constructor
-    public Material(String id, String nom, double tauxTVA, double coutUnitaire, double quantite, double coutTransport, double coefficientQualite) {
-        super(id, nom, "MATERIEL", tauxTVA);
-        this.coutUnitaire = coutUnitaire;
-        this.quantite = quantite;
-        this.coutTransport = coutTransport;
-        this.coefficientQualite = coefficientQualite;
+    public Material(String id, String name, double VATRate, double unitCost, double quantity, double transportCost, double qualityCoefficient) {
+        super(id, name, "MATERIAL", VATRate);
+        this.unitCost = unitCost;
+        this.quantity = quantity;
+        this.transportCost = transportCost;
+        this.qualityCoefficient = qualityCoefficient;
     }
 
     // Getters and Setters
-    public double getCoutUnitaire() {
-        return coutUnitaire;
+    public double getUnitCost() {
+        return unitCost;
     }
 
-    public void setCoutUnitaire(double coutUnitaire) {
-        this.coutUnitaire = coutUnitaire;
+    public void setUnitCost(double unitCost) {
+        this.unitCost = unitCost;
     }
 
-    public double getQuantite() {
-        return quantite;
+    public double getQuantity() {
+        return quantity;
     }
 
-    public void setQuantite(double quantite) {
-        this.quantite = quantite;
+    public void setQuantity(double quantity) {
+        this.quantity = quantity;
     }
 
-    public double getCoutTransport() {
-        return coutTransport;
+    public double getTransportCost() {
+        return transportCost;
     }
 
-    public void setCoutTransport(double coutTransport) {
-        this.coutTransport = coutTransport;
+    public void setTransportCost(double transportCost) {
+        this.transportCost = transportCost;
     }
 
-    public double getCoefficientQualite() {
-        return coefficientQualite;
+    public double getQualityCoefficient() {
+        return qualityCoefficient;
     }
 
-    public void setCoefficientQualite(double coefficientQualite) {
-        this.coefficientQualite = coefficientQualite;
+    public void setQualityCoefficient(double qualityCoefficient) {
+        this.qualityCoefficient = qualityCoefficient;
+    }
+
+    @Override
+    public double calculerCout() {
+        return (getUnitCost() * getQuantity() * getQualityCoefficient() * getVATRate() / 100) + getTransportCost() ;
     }
 }

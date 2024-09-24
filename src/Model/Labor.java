@@ -1,40 +1,45 @@
 package Model;
 
 public class Labor extends Component {
-    private double tauxHoraire;
-    private double heuresTravail;
-    private double productiviteOuvrier;
+    private double hourlyRate;
+    private double hoursWorked;
+    private double workerProductivity;
 
     // Constructor
-    public Labor(String id, String nom, double tauxTVA, double tauxHoraire, double heuresTravail, double productiviteOuvrier) {
-        super(id, nom, "MAINDOEUVRE", tauxTVA);
-        this.tauxHoraire = tauxHoraire;
-        this.heuresTravail = heuresTravail;
-        this.productiviteOuvrier = productiviteOuvrier;
+    public Labor(String id, String nom, double VATRate, double hourlyRate, double hoursWorked, double workerProductivity) {
+        super(id, nom, "LABOR", VATRate);
+        this.hourlyRate = hourlyRate;
+        this.hoursWorked = hoursWorked;
+        this.workerProductivity = workerProductivity;
     }
 
     // Getters and Setters
-    public double getTauxHoraire() {
-        return tauxHoraire;
+    public double getHourlyRate() {
+        return hourlyRate;
     }
 
-    public void setTauxHoraire(double tauxHoraire) {
-        this.tauxHoraire = tauxHoraire;
+    public void setHourlyRate(double hourlyRate) {
+        this.hourlyRate = hourlyRate;
     }
 
-    public double getHeuresTravail() {
-        return heuresTravail;
+    public double getHoursWorked() {
+        return hoursWorked;
     }
 
-    public void setHeuresTravail(double heuresTravail) {
-        this.heuresTravail = heuresTravail;
+    public void setHoursWorked(double hoursWorked) {
+        this.hoursWorked = hoursWorked;
     }
 
-    public double getProductiviteOuvrier() {
-        return productiviteOuvrier;
+    public double getWorkerProductivity() {
+        return workerProductivity;
     }
 
-    public void setProductiviteOuvrier(double productiviteOuvrier) {
-        this.productiviteOuvrier = productiviteOuvrier;
+    public void setWorkerProductivity(double workerProductivity) {
+        this.workerProductivity = workerProductivity;
+    }
+
+    @Override
+    public double calculerCout() {
+        return getHourlyRate() * getHoursWorked() * getWorkerProductivity() * getVATRate() / 100;
     }
 }

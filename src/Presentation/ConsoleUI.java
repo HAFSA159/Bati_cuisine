@@ -1,27 +1,30 @@
 package Presentation;
 
+import Model.Quotation;
 import Repository.Repository_Implementation.ComponentRepository;
+import Repository.Repository_Implementation.QuotationRepository;
 import Repository.Repository_Interface.ClientRepositoryInterface;
 import Repository.Repository_Interface.ProjectRepositoryInterface;
 import Model.Client;
 import Model.ProjectStatus;
 import Model.Project;
 
+import java.util.Date;
 import java.util.Scanner;
 import java.sql.SQLException;
 import java.util.List;
 
 public class ConsoleUI {
 
-    private Scanner scanner = new Scanner(System.in);
-    private ClientRepositoryInterface clientDAO;
-    private ProjectRepositoryInterface projetDAO;
-    private ComponentRepository componentDAO; // Now added as dependency
+    private final Scanner scanner = new Scanner(System.in);
+    private final ClientRepositoryInterface clientRepository;
+    private final ProjectRepositoryInterface projectRepository;
+    private final ComponentRepository componentRepository;
 
-    public ConsoleUI(ClientRepositoryInterface clientDAO, ProjectRepositoryInterface projetDAO, ComponentRepository componentDAO) {
-        this.clientDAO = clientDAO;
-        this.projetDAO = projetDAO;
-        this.componentDAO = componentDAO; // Injected ComponentDAO
+    public ConsoleUI(ClientRepositoryInterface clientDAO, ProjectRepositoryInterface projectDAO, ComponentRepository componentDAO) {
+        this.clientRepository = clientDAO;
+        this.projectRepository = projectDAO;
+        this.componentRepository = componentDAO;
     }
 
     public void startMenu() throws SQLException {
@@ -53,6 +56,7 @@ public class ConsoleUI {
             }
         }
     }
+
 
 // Crud For Client
 
@@ -110,7 +114,7 @@ public class ConsoleUI {
             Client client = new Client(name, address, phone, isProfessional);
 
             try {
-                clientDAO.createClient(client);
+                clientRepository.createClient(client);
                 System.out.println("Client created successfully!");
             } catch (SQLException e) {
                 System.out.println("Error creating client: " + e.getMessage());
@@ -119,7 +123,7 @@ public class ConsoleUI {
 
         private void showClients() {
             try {
-                List<Client> clients = clientDAO.getAllClients();
+                List<Client> clients = clientRepository.getAllClients();
                 if (clients.isEmpty()) {
                     System.out.println("No clients found.");
                 } else {
@@ -139,10 +143,10 @@ public class ConsoleUI {
         private void updateClient() {
             try {
                 System.out.print("Enter Client ID to update: ");
-                String clientId = scanner.nextLine(); // Client ID as String based on your `Client` model
+                String clientId = scanner.nextLine();
 
                 // Retrieve the client using clientDAO
-                Client client = clientDAO.getClientById(Integer.parseInt(clientId));
+                Client client = clientRepository.getClientById(Integer.parseInt(clientId));
                 if (client == null) {
                     System.out.println("Client not found!");
                     return;
@@ -177,8 +181,7 @@ public class ConsoleUI {
                 client.setPhone(phone);
                 client.setProfessional(isProfessional);
 
-                // Call the DAO to update the client in the database
-                clientDAO.updateClient(client); // Ensure this method is implemented in clientDAO
+                clientRepository.updateClient(client);
 
                 System.out.println("Client updated successfully!");
             } catch (SQLException e) {
@@ -193,7 +196,7 @@ public class ConsoleUI {
                 System.out.print("Enter Client ID to delete: ");
                 int clientId = Integer.parseInt(scanner.nextLine());
 
-                boolean isDeleted = clientDAO.deleteClientById(Integer.parseInt(String.valueOf(clientId)));
+                boolean isDeleted = clientRepository.deleteClientById(Integer.parseInt(String.valueOf(clientId)));
                 if (isDeleted) {
                     System.out.println("Client deleted successfully!");
                 } else {
@@ -217,7 +220,8 @@ public class ConsoleUI {
                 System.out.println("2. Show Projects");
                 System.out.println("3. Update Project");
                 System.out.println("4. Delete Project");
-                System.out.println("5. Back to Main Menu");
+                System.out.println("5. Generate Devis (Quotation)");
+                System.out.println("6. Back to Main Menu");
                 System.out.print("Choose an option: ");
                 int choice = Integer.parseInt(scanner.nextLine());
 
@@ -235,6 +239,9 @@ public class ConsoleUI {
                         deleteProject();
                         break;
                     case 5:
+                        generateQuotation();
+                        break;
+                    case 6:
                         continueManaging = false;
                         break;
                     default:
@@ -261,7 +268,7 @@ public class ConsoleUI {
 
             Project project = new Project(projectName, surface, profitMargin, ProjectStatus.IN_PROGRESS, clientId);
 
-            int projectId = projetDAO.createProject(project);
+            int projectId = projectRepository.createProject(project);
 
             addMaterialsToProject(projectId);
             addLaborToProject(projectId);
@@ -287,7 +294,7 @@ public class ConsoleUI {
                 System.out.print("Enter Quality Coefficient: ");
                 double qualityCoefficient = Double.parseDouble(scanner.nextLine());
 
-                componentDAO.addMaterial(materialName, materialVATRate, unitCost, quantity, transportCost, qualityCoefficient, projectId);
+                componentRepository.addMaterial(materialName, materialVATRate, unitCost, quantity, transportCost, qualityCoefficient, projectId);
 
                 System.out.print("Do you want to add another material? (yes/no): ");
                 continueAddingMaterials = scanner.nextLine().equalsIgnoreCase("yes");
@@ -310,7 +317,7 @@ public class ConsoleUI {
                 System.out.print("Enter Worker Productivity: ");
                 double workerProductivity = Double.parseDouble(scanner.nextLine());
 
-                componentDAO.addLabor(laborName, laborVATRate, hourlyRate, hoursWorked, workerProductivity, projectId);
+                componentRepository.addLabor(laborName, laborVATRate, hourlyRate, hoursWorked, workerProductivity, projectId);
 
                 System.out.print("Do you want to add another labor? (yes/no): ");
                 continueAddingLabor = scanner.nextLine().equalsIgnoreCase("yes");
@@ -319,7 +326,7 @@ public class ConsoleUI {
 
         private void showProjects() {
             try {
-                List<Project> projects = projetDAO.getAllProjects();
+                List<Project> projects = projectRepository.getAllProjects();
                 if (projects.isEmpty()) {
                     System.out.println("No projects found.");
                 } else {
@@ -341,7 +348,7 @@ public class ConsoleUI {
                 System.out.print("Enter Project ID to update: ");
                 int projectId = Integer.parseInt(scanner.nextLine());
 
-                Project project = projetDAO.getProjectById(projectId);
+                Project project = projectRepository.getProjectById(projectId);
                 if (project == null) {
                     System.out.println("Project not found!");
                     return;
@@ -365,7 +372,7 @@ public class ConsoleUI {
                 project.setSurface(surface);
                 project.setProfitMargin(profitMargin);
 
-                projetDAO.updateProjectWithoutCost(project);
+                projectRepository.updateProjectWithoutCost(project);
                 System.out.println("Project updated successfully!");
             } catch (SQLException e) {
                 System.out.println("Error updating project: " + e.getMessage());
@@ -380,7 +387,7 @@ public class ConsoleUI {
                 int projectId = Integer.parseInt(scanner.nextLine());
 
                 // Assuming there's a method in your ProjectRepository to delete a project by ID
-                boolean isDeleted = projetDAO.deleteProjectById(projectId);
+                boolean isDeleted = projectRepository.deleteProjectById(projectId);
                 if (isDeleted) {
                     System.out.println("Project deleted successfully!");
                 } else {
@@ -392,5 +399,59 @@ public class ConsoleUI {
                 System.out.println("Invalid input. Please enter a valid number.");
             }
         }
+
+
+    private void generateQuotation() throws SQLException {
+        System.out.print("Enter Project ID to generate a quotation: ");
+        int projectId;
+
+        try {
+            projectId = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid project ID.");
+            return;
+        }
+
+        Project project = projectRepository.getProjectById(projectId);
+        if (project == null) {
+            System.out.println("Project not found.");
+            return;
+        }
+
+        double totalMaterialCost = componentRepository.getTotalMaterialCostByProjectId(projectId);
+        double totalLaborCost = componentRepository.getTotalLaborCostByProjectId(projectId);
+
+        totalMaterialCost = Math.max(totalMaterialCost, 0);
+        totalLaborCost = Math.max(totalLaborCost, 0);
+
+        double totalCost = totalMaterialCost + totalLaborCost;
+        double finalCost = totalCost * (1 + project.getProfitMargin());
+
+        // Display the quotation details
+        System.out.println("\n=== Project Quotation ===");
+        System.out.println("Project Name: " + project.getProjectName());
+        System.out.println("Surface Area: " + project.getSurface() + " sqm");
+        System.out.println("Profit Margin: " + (project.getProfitMargin() * 100) + "%");
+        System.out.printf("Total Material Cost: $%.2f%n", totalMaterialCost);
+        System.out.printf("Total Labor Cost: $%.2f%n", totalLaborCost);
+        System.out.printf("Final Project Cost (with profit): $%.2f%n", finalCost);
+
+        // Create a Quotation object
+        Quotation quotation = new Quotation(
+                /* id */ 0,
+                finalCost,
+                new Date(System.currentTimeMillis()) ,
+                new Date(System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 30)), // validity date (30 days later)
+                false,
+                project
+        );
+
+        // Save the quotation using the repository
+        QuotationRepository quotationRepository = new QuotationRepository();
+        quotationRepository.saveQuotation(quotation);
+        System.out.println("Quotation saved successfully.");
+    }
+
+
 
 }

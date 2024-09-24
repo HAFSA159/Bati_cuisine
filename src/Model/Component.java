@@ -2,17 +2,20 @@ package Model;
 
 public abstract class Component {
     protected String id;
-    protected String nom;
-    protected String typeComposant; // Can be 'MATERIEL' or 'MAINDOEUVRE'
-    protected double tauxTVA;
+    protected String name;
+    protected String componentType; // Can be 'MATERIAL' or 'Labor'
+    protected double VATRate;
+
+    public abstract double calculerCout();
 
     // Constructor
     public Component(String id, String nom, String typeComposant, double tauxTVA) {
         this.id = id;
-        this.nom = nom;
-        this.typeComposant = typeComposant;
-        this.tauxTVA = tauxTVA;
+        this.name = nom;
+        this.componentType = typeComposant;
+        this.VATRate = tauxTVA;
     }
+
 
     // Getters and Setters
     public String getId() {
@@ -23,27 +26,27 @@ public abstract class Component {
         this.id = id;
     }
 
-    public String getNom() {
-        return nom;
+    public String getName() {
+        return name;
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getTypeComposant() {
-        return typeComposant;
+    public String getComponentType() {
+        return componentType;
     }
 
-    public void setTypeComposant(String typeComposant) {
-        this.typeComposant = typeComposant;
+    public void setComponentType(String componentType) {
+        this.componentType = componentType;
     }
 
-    public double getTauxTVA() {
-        return tauxTVA;
+    public double getVATRate() {
+        return VATRate;
     }
 
-    public void setTauxTVA(double tauxTVA) {
-        this.tauxTVA = tauxTVA;
+    public void setVATRate(double VATRate) {
+        this.VATRate = VATRate;
     }
 }
