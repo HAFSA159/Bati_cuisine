@@ -7,4 +7,7 @@ import java.util.List;
 public interface ClientRepositoryInterface {
     void createClient(Client client) throws SQLException;
     List<Client> getAllClients() throws SQLException;
+    Client getClientById(int clientId) throws SQLException;
+    void updateClient(Client client) throws SQLException;
+    boolean deleteClientById(int clientId) throws SQLException;
 }

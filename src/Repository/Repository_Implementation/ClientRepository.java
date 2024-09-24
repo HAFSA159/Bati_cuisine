@@ -11,6 +11,8 @@ import java.util.List;
 public class ClientRepository implements ClientRepositoryInterface {
     private static final String INSERT_CLIENT = "INSERT INTO Client (name, address, phone, isProfessional) VALUES (?, ?, ?, ?)";
     private static final String SELECT_ALL_CLIENTS = "SELECT * FROM Client";
+    private static final String UPDATE_CLIENT = "UPDATE Client SET name = ?, address = ?, phone = ?, isProfessional = ? WHERE id = ?";
+    private static final String DELETE_CLIENT = "DELETE FROM Client WHERE id = ?";
 
     @Override
     public void createClient(Client client) throws SQLException {
@@ -24,6 +26,7 @@ public class ClientRepository implements ClientRepositoryInterface {
         }
     }
 
+
     @Override
     public List<Client> getAllClients() throws SQLException {
         List<Client> clients = new ArrayList<>();
@@ -32,15 +35,74 @@ public class ClientRepository implements ClientRepositoryInterface {
              ResultSet resultSet = statement.executeQuery(SELECT_ALL_CLIENTS)) {
 
             while (resultSet.next()) {
-                String id = resultSet.getString("id");
+                // Change from String to int for id
+                int id = resultSet.getInt("id"); // Use getInt instead of getString
                 String name = resultSet.getString("name");
                 String address = resultSet.getString("address");
                 String phone = resultSet.getString("phone");
                 boolean isProfessional = resultSet.getBoolean("isProfessional");
 
+                // Create a new Client object with int id
                 clients.add(new Client(id, name, address, phone, isProfessional));
             }
         }
         return clients;
     }
+
+
+    public Client getClientById(int clientId) throws SQLException {
+        String query = "SELECT * FROM client WHERE id = ?";
+        Client client = null;
+
+        try (Connection connection = DatabaseConnection.connect();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setInt(1, clientId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                client = new Client(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("address"),
+                        rs.getString("phone"),
+                        rs.getBoolean("isProfessional")
+                );
+            }
+        }
+
+        return client;
+    }
+
+
+    @Override
+    public void updateClient(Client client) throws SQLException {
+        try (Connection connection = DatabaseConnection.connect();
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_CLIENT)) {
+            preparedStatement.setString(1, client.getName());
+            preparedStatement.setString(2, client.getAddress());
+            preparedStatement.setString(3, client.getPhone());
+            preparedStatement.setBoolean(4, client.isProfessional());
+
+            // Change from setString to setInt for id
+            preparedStatement.setInt(5, client.getId()); // Use setInt instead of setString
+            preparedStatement.executeUpdate();
+        }
+    }
+
+
+    @Override
+    public boolean deleteClientById(int clientId) throws SQLException {
+        String sql = "DELETE FROM client WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, clientId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
+
+
 }

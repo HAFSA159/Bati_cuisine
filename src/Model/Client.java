@@ -1,13 +1,14 @@
 package Model;
 
 public class Client {
-    private String id;
+    private int id; // Change id to int
     private String name;
     private String address;
     private String phone;
     private boolean isProfessional;
 
-    public Client(String id, String name, String address, String phone, boolean isProfessional) {
+    // Constructor with id
+    public Client(int id, String name, String address, String phone, boolean isProfessional) {
         this.id = id;
         this.name = name;
         this.address = address;
@@ -15,6 +16,7 @@ public class Client {
         this.isProfessional = isProfessional;
     }
 
+    // Constructor without id
     public Client(String name, String address, String phone, boolean isProfessional) {
         this.name = name;
         this.address = address;
@@ -22,14 +24,16 @@ public class Client {
         this.isProfessional = isProfessional;
     }
 
-    public String getId() {
+    // Getter and setter for id
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
+    // Getters and setters for other attributes
     public String getName() {
         return name;
     }
