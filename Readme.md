@@ -40,7 +40,12 @@
 - **PostgreSQL** : Installez PostgreSQL et configurez une base de données pour l'application.
 - **JDBC Driver** : Téléchargez le pilote JDBC pour PostgreSQL.
 
+
 ### Étapes d'installation
 1. **Clonez le dépôt** :
    ```bash
    git clone https://github.com/JavaAura/Hafsa_Elmoatassim_Billah_S1_B2_Libary_System_V2
+   
+  ```bash
+   java -jar nom_du_fichier.jar
+
