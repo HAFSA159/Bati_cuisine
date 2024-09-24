@@ -21,5 +21,4 @@ public class DatabaseConnection {
         return conn;
     }
 
-
 }

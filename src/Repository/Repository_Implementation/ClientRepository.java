@@ -1,6 +1,6 @@
-package DAO.Dao_Implementation;
+package Repository.Repository_Implementation;
 
-import DAO.Dao_Interface.ClientDAOInterface;
+import Repository.Repository_Interface.ClientRepositoryInterface;
 import Model.Client;
 import Utilitaire.DatabaseConnection;
 
@@ -8,7 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientDAO implements ClientDAOInterface {
+public class ClientRepository implements ClientRepositoryInterface {
     private static final String INSERT_CLIENT = "INSERT INTO Client (name, address, phone, isProfessional) VALUES (?, ?, ?, ?)";
     private static final String SELECT_ALL_CLIENTS = "SELECT * FROM Client";
 

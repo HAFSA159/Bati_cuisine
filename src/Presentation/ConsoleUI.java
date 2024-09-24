@@ -1,13 +1,12 @@
 package Presentation;
 
-import DAO.Dao_Implementation.ComponentDAO;
-import DAO.Dao_Interface.ClientDAOInterface;
-import DAO.Dao_Interface.ProjectDAOInterface;
+import Repository.Repository_Implementation.ComponentRepository;
+import Repository.Repository_Interface.ClientRepositoryInterface;
+import Repository.Repository_Interface.ProjectRepositoryInterface;
 import Model.Client;
 import Model.ProjectStatus;
 import Model.Project;
 
-import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.sql.SQLException;
 import java.util.List;
@@ -15,11 +14,11 @@ import java.util.List;
 public class ConsoleUI {
 
     private Scanner scanner = new Scanner(System.in);
-    private ClientDAOInterface clientDAO;
-    private ProjectDAOInterface projetDAO;
-    private ComponentDAO componentDAO; // Now added as dependency
+    private ClientRepositoryInterface clientDAO;
+    private ProjectRepositoryInterface projetDAO;
+    private ComponentRepository componentDAO; // Now added as dependency
 
-    public ConsoleUI(ClientDAOInterface clientDAO, ProjectDAOInterface projetDAO, ComponentDAO componentDAO) {
+    public ConsoleUI(ClientRepositoryInterface clientDAO, ProjectRepositoryInterface projetDAO, ComponentRepository componentDAO) {
         this.clientDAO = clientDAO;
         this.projetDAO = projetDAO;
         this.componentDAO = componentDAO; // Injected ComponentDAO
@@ -256,10 +255,60 @@ public class ConsoleUI {
     }
 
     private void updateProject() {
-        // Implement update project logic
+        try {
+            System.out.print("Enter Project ID to update: ");
+            int projectId = Integer.parseInt(scanner.nextLine());
+
+            Project project = projetDAO.getProjectById(projectId);
+            if (project == null) {
+                System.out.println("Project not found!");
+                return;
+            }
+
+            System.out.print("Enter new Project Name (leave empty to keep current: " + project.getProjectName() + "): ");
+            String projectName = scanner.nextLine();
+            if (projectName.isEmpty()) {
+                projectName = project.getProjectName();
+            }
+
+            System.out.print("Enter new Surface Area (leave empty to keep current: " + project.getSurface() + "): ");
+            String surfaceInput = scanner.nextLine();
+            double surface = surfaceInput.isEmpty() ? project.getSurface() : Double.parseDouble(surfaceInput);
+
+            System.out.print("Enter new Profit Margin (leave empty to keep current: " + project.getProfitMargin() + "): ");
+            String profitMarginInput = scanner.nextLine();
+            double profitMargin = profitMarginInput.isEmpty() ? project.getProfitMargin() : Double.parseDouble(profitMarginInput);
+
+            project.setProjectName(projectName);
+            project.setSurface(surface);
+            project.setProfitMargin(profitMargin);
+
+            projetDAO.updateProjectWithoutCost(project);
+            System.out.println("Project updated successfully!");
+        } catch (SQLException e) {
+            System.out.println("Error updating project: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid number.");
+        }
     }
 
     private void deleteProject() {
-        // Implement delete project logic
+        try {
+            System.out.print("Enter Project ID to delete: ");
+            int projectId = Integer.parseInt(scanner.nextLine());
+
+            // Assuming there's a method in your ProjectRepository to delete a project by ID
+            boolean isDeleted = projetDAO.deleteProjectById(projectId);
+            if (isDeleted) {
+                System.out.println("Project deleted successfully!");
+            } else {
+                System.out.println("Project not found or could not be deleted.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error deleting project: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid number.");
+        }
     }
+
 }

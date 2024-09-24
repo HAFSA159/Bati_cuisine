@@ -1,6 +1,6 @@
-package DAO.Dao_Implementation;
+package Repository.Repository_Implementation;
 
-import DAO.Dao_Interface.ProjectDAOInterface;
+import Repository.Repository_Interface.ProjectRepositoryInterface;
 import Model.Project;
 import Model.ProjectStatus;
 import Utilitaire.DatabaseConnection;
@@ -9,7 +9,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProjectDAO implements ProjectDAOInterface {
+public class ProjectRepository implements ProjectRepositoryInterface {
 
 
     @Override
@@ -116,17 +116,15 @@ public class ProjectDAO implements ProjectDAOInterface {
     }
 
     @Override
-    public void deleteProject(int id) throws SQLException {
+    public boolean deleteProjectById(int id) throws SQLException {
         String DELETE_PROJECT = "DELETE FROM project WHERE id = ?";
         try (Connection connection = DatabaseConnection.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(DELETE_PROJECT)) {
             preparedStatement.setInt(1, id);
             int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected == 0) {
-                System.out.println("No project found with ID: " + id);
-            } else {
-                System.out.println("Project deleted successfully.");
-            }
+            return rowsAffected > 0; // Return true if a project was deleted
         }
     }
+
+
 }

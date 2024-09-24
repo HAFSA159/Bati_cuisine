@@ -34,6 +34,7 @@ public class Project {
         this(0, projectName, surface, profitMargin, null, projectStatus, clientId); // id is defaulted to 0
     }
 
+
     // Getters and Setters
     public int getId() {
         return id;

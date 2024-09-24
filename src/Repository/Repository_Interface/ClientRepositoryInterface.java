@@ -1,10 +1,10 @@
-package DAO.Dao_Interface;
+package Repository.Repository_Interface;
 
 import Model.Client;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface ClientDAOInterface {
+public interface ClientRepositoryInterface {
     void createClient(Client client) throws SQLException;
     List<Client> getAllClients() throws SQLException;
 }

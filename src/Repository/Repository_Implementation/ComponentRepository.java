@@ -1,13 +1,13 @@
-package DAO.Dao_Implementation;
+package Repository.Repository_Implementation;
 
-import DAO.Dao_Interface.ComponentDAOInterface;
+import Repository.Repository_Interface.ComponentRepositoryInterface;
 import Utilitaire.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class ComponentDAO implements ComponentDAOInterface {
+public class ComponentRepository implements ComponentRepositoryInterface {
 
     @Override
     public void addMaterial(String name, double VATRate, double unitCost, double quantity, double transportCost, double qualityCoefficient, int projectId) throws SQLException {
@@ -43,4 +43,5 @@ public class ComponentDAO implements ComponentDAOInterface {
             stmt.executeUpdate();
         }
     }
+
 }
