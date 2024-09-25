@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.Scanner;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConsoleUI {
 
@@ -233,7 +234,7 @@ public class ConsoleUI {
                 System.out.println("2. Show Projects");
                 System.out.println("3. Update Project");
                 System.out.println("4. Delete Project");
-                System.out.println("5. Generate Devis (Quotation)");
+                System.out.println("5. Search Projects");
                 System.out.println("6. Back to Main Menu");
                 System.out.print("Choose an option: ");
                 int choice = Integer.parseInt(scanner.nextLine());
@@ -252,7 +253,7 @@ public class ConsoleUI {
                         deleteProject();
                         break;
                     case 5:
-                        generateQuotation();
+                        searchProjects();
                         break;
                     case 6:
                         continueManaging = false;
@@ -337,24 +338,51 @@ public class ConsoleUI {
             }
         }
 
-        private void showProjects() {
-            try {
-                List<Project> projects = projectRepository.getAllProjects();
-                if (projects.isEmpty()) {
-                    System.out.println("No projects found.");
-                } else {
-                    for (Project project : projects) {
-                        System.out.println("ID: " + project.getId() +
-                                ", Name: " + project.getProjectName() +
-                                ", Surface: " + project.getSurface() +
-                                ", Profit Margin: " + project.getProfitMargin() +
-                                ", Client ID: " + project.getClientId());
-                    }
+        private void searchProjects() throws SQLException {
+            System.out.print("Enter Project Name or ID to search: ");
+            String input = scanner.nextLine();
+
+            List<Project> projects = projectRepository.getAllProjects();
+            List<Project> filteredProjects = projects.stream()
+                    .filter(project ->
+                            project.getProjectName().toLowerCase().contains(input.toLowerCase()) ||
+                                    String.valueOf(project.getId()).equals(input)
+                    )
+                    .collect(Collectors.toList());
+
+            if (filteredProjects.isEmpty()) {
+                System.out.println("No projects found with the name or ID: " + input);
+            } else {
+                System.out.println("---------------");
+                System.out.println("Found Projects:");
+                for (Project project : filteredProjects) {
+                    System.out.println("Project ID: " + project.getId());
+                    System.out.println("Project Name: " + project.getProjectName());
+                    System.out.println("Surface Area: " + project.getSurface());
+                    System.out.println("Profit Margin: " + project.getProfitMargin());
+                    System.out.println("---------------");
                 }
-            } catch (SQLException e) {
-                System.out.println("Error retrieving projects: " + e.getMessage());
             }
         }
+
+        private void showProjects() {
+                try {
+                    List<Project> projects = projectRepository.getAllProjects();
+                    if (projects.isEmpty()) {
+                        System.out.println("No projects found.");
+                    } else {
+                        for (Project project : projects) {
+                            System.out.println("ID: " + project.getId() +
+                                    ", Name: " + project.getProjectName() +
+                                    ", Surface: " + project.getSurface() +
+                                    ", Profit Margin: " + project.getProfitMargin() +
+                                    ", Client ID: " + project.getClientId());
+                        }
+                    }
+                } catch (SQLException e) {
+                    System.out.println("Error retrieving projects: " + e.getMessage());
+                }
+            }
 
         private void updateProject() {
             try {
@@ -421,9 +449,10 @@ public class ConsoleUI {
             try {
                 System.out.println("\n=== Manage Quotations ===");
                 System.out.println("1. Display All Quotations");
-                System.out.println("2. Update a Quotation");
-                System.out.println("3. Delete a Quotation");
-                System.out.println("4. Back to Main Menu");
+                System.out.println("2. Generate a Quotation");
+                System.out.println("3. Update a Quotation");
+                System.out.println("4. Delete a Quotation");
+                System.out.println("5. Back to Main Menu");
                 System.out.print("Choose an option: ");
                 int choice = Integer.parseInt(scanner.nextLine());
 
@@ -432,12 +461,15 @@ public class ConsoleUI {
                         displayAllQuotations();
                         break;
                     case 2:
-                        updateQuotation();
+                        generateQuotation();
                         break;
                     case 3:
-                        deleteQuotation();
+                        updateQuotation();
                         break;
                     case 4:
+                        deleteQuotation();
+                        break;
+                    case 5:
                         continueManaging = false;
                         break;
                     default:
