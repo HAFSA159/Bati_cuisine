@@ -47,12 +47,15 @@ public class ComponentRepository implements ComponentRepositoryInterface {
 
     @Override
     public double getTotalMaterialCostByProjectId(int projectId) throws SQLException {
-        String query = "SELECT SUM(unitCost * quantity + transportCost) FROM Materials WHERE projectId = ?";
-        PreparedStatement stmt = (PreparedStatement) DatabaseConnection.connect();
-        stmt.setInt(1, projectId);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
-            return rs.getDouble(1);
+        String query = "SELECT SUM(unitCost * quantity + transportCost) FROM Material WHERE projectId = ?";
+        try (Connection conn = DatabaseConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, projectId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble(1);
+                }
+            }
         }
         return 0;
     }
@@ -60,13 +63,15 @@ public class ComponentRepository implements ComponentRepositoryInterface {
     @Override
     public double getTotalLaborCostByProjectId(int projectId) throws SQLException {
         String query = "SELECT SUM(hourlyRate * hoursWorked) FROM Labor WHERE projectId = ?";
-        PreparedStatement stmt = (PreparedStatement) DatabaseConnection.connect();
-        stmt.setInt(1, projectId);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
-            return rs.getDouble(1);
+        try (Connection conn = DatabaseConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, projectId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble(1);
+                }
+            }
         }
         return 0;
     }
-
 }

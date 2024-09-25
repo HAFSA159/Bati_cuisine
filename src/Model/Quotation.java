@@ -9,11 +9,9 @@ public class Quotation {
     private Date validityDate;
     private double VAT;
     private boolean accepted;
-    private Project project;
+    private Project project; // Keeping the Project object
 
-
-    public Quotation(int id, double estimatedAmount, Date issueDate, Date validityDate, boolean accepted, Project project) {
-
+    public Quotation(int id, double estimatedAmount, Date issueDate, Date validityDate, double VAT, boolean accepted, Project project) {
         if (id <= 0) {
             throw new IllegalArgumentException("Quotation ID must be positive.");
         }
@@ -33,9 +31,10 @@ public class Quotation {
         this.validityDate = validityDate;
         this.VAT = VAT;
         this.accepted = accepted;
-        this.project = project;
+        this.project = project; // Initialize project
     }
 
+    // Getter and setter methods
     public int getId() {
         return id;
     }
@@ -97,7 +96,16 @@ public class Quotation {
         return project;
     }
 
+    // Getter for project ID from the Project object
     public int getProjectId() {
-        return this.project.getId();
+        return this.project.getId(); // Assuming Project has a method getId()
+    }
+
+    // Setter for Project object
+    public void setProject(Project project) {
+        if (project == null) {
+            throw new IllegalArgumentException("Project cannot be null.");
+        }
+        this.project = project; // Update the project
     }
 }

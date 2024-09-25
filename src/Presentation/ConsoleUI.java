@@ -2,13 +2,19 @@ package Presentation;
 
 import Model.Quotation;
 import Repository.Repository_Implementation.ComponentRepository;
+import Repository.Repository_Implementation.ProjectRepository;
 import Repository.Repository_Implementation.QuotationRepository;
 import Repository.Repository_Interface.ClientRepositoryInterface;
 import Repository.Repository_Interface.ProjectRepositoryInterface;
 import Model.Client;
 import Model.ProjectStatus;
 import Model.Project;
+import Utilitaire.DatabaseConnection;
+import com.sun.jndi.ldap.Connection;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 import java.sql.SQLException;
@@ -20,11 +26,16 @@ public class ConsoleUI {
     private final ClientRepositoryInterface clientRepository;
     private final ProjectRepositoryInterface projectRepository;
     private final ComponentRepository componentRepository;
+    private final QuotationRepository quotationRepository;
 
-    public ConsoleUI(ClientRepositoryInterface clientDAO, ProjectRepositoryInterface projectDAO, ComponentRepository componentDAO) {
+    public ConsoleUI(ClientRepositoryInterface clientDAO,
+                     ProjectRepositoryInterface projectDAO,
+                     ComponentRepository componentDAO,
+                     QuotationRepository quotationRepository) {
         this.clientRepository = clientDAO;
         this.projectRepository = projectDAO;
         this.componentRepository = componentDAO;
+        this.quotationRepository = quotationRepository;
     }
 
     public void startMenu() throws SQLException {
@@ -34,7 +45,8 @@ public class ConsoleUI {
                 System.out.println("\n=== Main Menu ===");
                 System.out.println("1. Manage Clients");
                 System.out.println("2. Manage Projects");
-                System.out.println("3. Exit");
+                System.out.println("3. Display Quotations"); // Add this option
+                System.out.println("4. Exit");
                 System.out.print("Choose an option: ");
                 int choice = Integer.parseInt(scanner.nextLine());
 
@@ -46,6 +58,9 @@ public class ConsoleUI {
                         manageProjects();
                         break;
                     case 3:
+                        manageQuotations();
+                        break;
+                    case 4:
                         continueRunning = false;
                         break;
                     default:
@@ -56,8 +71,6 @@ public class ConsoleUI {
             }
         }
     }
-
-
 // Crud For Client
 
     private void manageClients() {
@@ -382,76 +395,219 @@ public class ConsoleUI {
         }
 
         private void deleteProject() {
-            try {
-                System.out.print("Enter Project ID to delete: ");
-                int projectId = Integer.parseInt(scanner.nextLine());
+        try {
+            System.out.print("Enter Project ID to delete: ");
+            int projectId = Integer.parseInt(scanner.nextLine());
 
-                // Assuming there's a method in your ProjectRepository to delete a project by ID
-                boolean isDeleted = projectRepository.deleteProjectById(projectId);
-                if (isDeleted) {
-                    System.out.println("Project deleted successfully!");
-                } else {
-                    System.out.println("Project not found or could not be deleted.");
+            // Try to delete the project by its ID
+            boolean isDeleted = projectRepository.deleteProjectById(projectId);
+            if (isDeleted) {
+                System.out.println("Project deleted successfully!");
+            } else {
+                System.out.println("Project not found or could not be deleted.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error deleting project: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid number.");
+        }
+    }
+
+// Crud For Quotation
+
+    private void manageQuotations() {
+        boolean continueManaging = true;
+        while (continueManaging) {
+            try {
+                System.out.println("\n=== Manage Quotations ===");
+                System.out.println("1. Display All Quotations");
+                System.out.println("2. Update a Quotation");
+                System.out.println("3. Delete a Quotation");
+                System.out.println("4. Back to Main Menu");
+                System.out.print("Choose an option: ");
+                int choice = Integer.parseInt(scanner.nextLine());
+
+                switch (choice) {
+                    case 1:
+                        displayAllQuotations();
+                        break;
+                    case 2:
+                        updateQuotation();
+                        break;
+                    case 3:
+                        deleteQuotation();
+                        break;
+                    case 4:
+                        continueManaging = false;
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
                 }
-            } catch (SQLException e) {
-                System.out.println("Error deleting project: " + e.getMessage());
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException | SQLException e) {
                 System.out.println("Invalid input. Please enter a valid number.");
             }
         }
-
-
-    private void generateQuotation() throws SQLException {
-        System.out.print("Enter Project ID to generate a quotation: ");
-        int projectId;
-
-        try {
-            projectId = Integer.parseInt(scanner.nextLine());
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a valid project ID.");
-            return;
-        }
-
-        Project project = projectRepository.getProjectById(projectId);
-        if (project == null) {
-            System.out.println("Project not found.");
-            return;
-        }
-
-        double totalMaterialCost = componentRepository.getTotalMaterialCostByProjectId(projectId);
-        double totalLaborCost = componentRepository.getTotalLaborCostByProjectId(projectId);
-
-        totalMaterialCost = Math.max(totalMaterialCost, 0);
-        totalLaborCost = Math.max(totalLaborCost, 0);
-
-        double totalCost = totalMaterialCost + totalLaborCost;
-        double finalCost = totalCost * (1 + project.getProfitMargin());
-
-        // Display the quotation details
-        System.out.println("\n=== Project Quotation ===");
-        System.out.println("Project Name: " + project.getProjectName());
-        System.out.println("Surface Area: " + project.getSurface() + " sqm");
-        System.out.println("Profit Margin: " + (project.getProfitMargin() * 100) + "%");
-        System.out.printf("Total Material Cost: $%.2f%n", totalMaterialCost);
-        System.out.printf("Total Labor Cost: $%.2f%n", totalLaborCost);
-        System.out.printf("Final Project Cost (with profit): $%.2f%n", finalCost);
-
-        // Create a Quotation object
-        Quotation quotation = new Quotation(
-                /* id */ 0,
-                finalCost,
-                new Date(System.currentTimeMillis()) ,
-                new Date(System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 30)), // validity date (30 days later)
-                false,
-                project
-        );
-
-        // Save the quotation using the repository
-        QuotationRepository quotationRepository = new QuotationRepository();
-        quotationRepository.saveQuotation(quotation);
-        System.out.println("Quotation saved successfully.");
     }
 
+        private void generateQuotation() throws SQLException {
+            System.out.print("Enter Project ID to generate a quotation: ");
+            int projectId;
 
+            try {
+                projectId = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid project ID.");
+                return;
+            }
+
+            Project project = projectRepository.getProjectById(projectId);
+            if (project == null) {
+                System.out.println("Project not found.");
+                return;
+            }
+
+            double totalMaterialCost = componentRepository.getTotalMaterialCostByProjectId(projectId);
+            double totalLaborCost = componentRepository.getTotalLaborCostByProjectId(projectId);
+
+            totalMaterialCost = Math.max(totalMaterialCost, 0);
+            totalLaborCost = Math.max(totalLaborCost, 0);
+
+            double totalCost = totalMaterialCost + totalLaborCost;
+            double finalCost = totalCost * (1 + project.getProfitMargin());
+
+            double VAT = 15.0; // Set your desired VAT value here
+
+            System.out.println("\n=== Project Quotation ===");
+            System.out.println("Project Name: " + project.getProjectName());
+            System.out.println("Surface Area: " + project.getSurface() + " sqm");
+            System.out.println("Profit Margin: " + (project.getProfitMargin() * 100) + "%");
+            System.out.printf("Total Material Cost:  €%.2f%n", totalMaterialCost);
+            System.out.printf("Total Labor Cost:  €%.2f%n", totalLaborCost);
+            System.out.printf("Final Project Cost (with profit):  €%.2f%n", finalCost);
+
+            // Retrieve the next available ID for the quotation
+            QuotationRepository quotationRepository = new QuotationRepository(); // Create instance here
+            int nextQuotationId = quotationRepository.getNextQuotationId(); // Call the instance method
+
+            // Create a Quotation object
+            Quotation quotation = new Quotation(
+                    nextQuotationId, // Use the generated positive ID here
+                    finalCost,
+                    new Date(System.currentTimeMillis()),
+                    new Date(System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 30)), // validity date (30 days later)
+                    VAT,
+                    false,
+                    project
+            );
+
+            quotationRepository.saveQuotation(quotation);
+            System.out.println("Quotation saved successfully.");
+        }
+
+        private void updateQuotation() throws SQLException {
+            System.out.print("Enter Quotation ID to update: ");
+            int quotationId;
+
+            try {
+                quotationId = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid quotation ID.");
+                return;
+            }
+
+            // Récupérer l'instance de QuotationRepository
+            QuotationRepository quotationRepository = new QuotationRepository();
+
+            // Récupérer la quotation existante
+            Quotation existingQuotation = quotationRepository.getQuotationById(quotationId);
+            if (existingQuotation == null) {
+                System.out.println("Quotation not found.");
+                return;
+            }
+
+            // Récupérer l'instance de ProjectRepository (ou la classe appropriée)
+            ProjectRepository projectRepository = new ProjectRepository();
+
+            // Demander à l'utilisateur de saisir le nouvel ID du projet
+            System.out.print("Enter new Project ID (current: " + existingQuotation.getProjectId() + "): ");
+            int projectId = Integer.parseInt(scanner.nextLine());
+
+            // Vérifier si le projet existe
+            Project project = projectRepository.getProjectById(projectId);
+            if (project == null) {
+                System.out.println("Project not found.");
+                return;
+            }
+
+            // Demander les nouveaux détails
+            System.out.print("Enter new Estimated Amount (current: " + existingQuotation.getEstimatedAmount() + "): ");
+            double estimatedAmount = Double.parseDouble(scanner.nextLine());
+
+            System.out.print("Enter new VAT (current: " + existingQuotation.getVAT() + "): ");
+            double VAT = Double.parseDouble(scanner.nextLine());
+
+            System.out.print("Enter new Accepted status (true/false, current: " + existingQuotation.isAccepted() + "): ");
+            boolean accepted = Boolean.parseBoolean(scanner.nextLine());
+
+            // Mettre à jour la quotation
+            existingQuotation.setEstimatedAmount(estimatedAmount);
+            existingQuotation.setVAT(VAT);
+            existingQuotation.setAccepted(accepted);
+            existingQuotation.setProject(project); // Mettre à jour le projet
+
+            quotationRepository.updateQuotation(existingQuotation);
+            System.out.println("Quotation updated successfully.");
+        }
+
+        private void deleteQuotation() throws SQLException {
+            System.out.print("Enter Quotation ID to delete: ");
+            int quotationId;
+
+            try {
+                quotationId = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid quotation ID.");
+                return;
+            }
+
+            // Récupérer l'instance de QuotationRepository
+            QuotationRepository quotationRepository = new QuotationRepository();
+
+            // Vérifier si la quotation existe
+            if (quotationRepository.getQuotationById(quotationId) == null) {
+                System.out.println("Quotation not found.");
+                return;
+            }
+
+            // Supprimer la quotation
+            quotationRepository.deleteQuotation(quotationId);
+            System.out.println("Quotation deleted successfully.");
+        }
+
+        public void displayAllQuotations() {
+        try {
+            List<Quotation> quotations = quotationRepository.getAllQuotations();
+            for (Quotation quotation : quotations) {
+                System.out.println("Quotation ID: " + quotation.getId());
+                System.out.println("Estimated Amount: " + quotation.getEstimatedAmount());
+                System.out.println("VAT: " + quotation.getVAT());
+                System.out.println("Issue Date: " + quotation.getIssueDate());
+                System.out.println("Validity Date: " + quotation.getValidityDate());
+
+                if (quotation.getProject() != null) {
+                    System.out.println("Project ID: " + quotation.getProject().getId());
+                    System.out.println("Project Name: " + quotation.getProject().getProjectName());
+                } else {
+                    System.out.println("Project: Not available");
+                }
+
+                System.out.println("---------------");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error fetching quotations: " + e.getMessage());
+        }
+    }
 
 }
+
+
