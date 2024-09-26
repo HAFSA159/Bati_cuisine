@@ -38,8 +38,5 @@ public class Labor extends Component {
         this.workerProductivity = workerProductivity;
     }
 
-    @Override
-    public double calculerCout() {
-        return getHourlyRate() * getHoursWorked() * getWorkerProductivity() * getVATRate() / 100;
-    }
+
 }

@@ -24,18 +24,6 @@ public class Project {
         this(0, projectName, surface, profitMargin, null, projectStatus, String.valueOf(clientId));
     }
 
-
-    // Constructor without totalCost and clientId
-    public Project(String projectName, double surface, double profitMargin, ProjectStatus projectStatus) {
-        this(0, projectName, surface, profitMargin, null, projectStatus, null); // id is defaulted to 0, clientId is null
-    }
-
-    // Constructor with clientId
-    public Project(String projectName, double surface, double profitMargin, ProjectStatus projectStatus, String clientId) {
-        this(0, projectName, surface, profitMargin, null, projectStatus, clientId); // id is defaulted to 0
-    }
-
-
     // Getters and Setters
     public int getId() {
         return id;

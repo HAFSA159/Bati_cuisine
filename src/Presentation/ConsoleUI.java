@@ -1,21 +1,15 @@
 package Presentation;
 
 import Model.Quotation;
-import Repository.Repository_Implementation.ComponentRepository;
-import Repository.Repository_Implementation.ProjectRepository;
-import Repository.Repository_Implementation.QuotationRepository;
-import Repository.Repository_Interface.ClientRepositoryInterface;
-import Repository.Repository_Interface.ProjectRepositoryInterface;
 import Model.Client;
 import Model.ProjectStatus;
 import Model.Project;
-import Utilitaire.DatabaseConnection;
-import com.sun.jndi.ldap.Connection;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
+import Service.Service_Interface.ClientService;
+import Service.Service_Interface.ComponentService;
+import Service.Service_Interface.ProjectService;
+import Service.Service_Interface.QuotationService;
 import java.util.Date;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.sql.SQLException;
 import java.util.List;
@@ -24,19 +18,16 @@ import java.util.stream.Collectors;
 public class ConsoleUI {
 
     private final Scanner scanner = new Scanner(System.in);
-    private final ClientRepositoryInterface clientRepository;
-    private final ProjectRepositoryInterface projectRepository;
-    private final ComponentRepository componentRepository;
-    private final QuotationRepository quotationRepository;
+    private final ClientService clientService;
+    private final ProjectService projectService;
+    private final ComponentService componentService;
+    private final QuotationService quotationService;
 
-    public ConsoleUI(ClientRepositoryInterface clientDAO,
-                     ProjectRepositoryInterface projectDAO,
-                     ComponentRepository componentDAO,
-                     QuotationRepository quotationRepository) {
-        this.clientRepository = clientDAO;
-        this.projectRepository = projectDAO;
-        this.componentRepository = componentDAO;
-        this.quotationRepository = quotationRepository;
+    public ConsoleUI(ClientService clientService, ProjectService projectService, ComponentService componentService, QuotationService quotationService) {
+        this.clientService = clientService;
+        this.projectService = projectService;
+        this.componentService = componentService;
+        this.quotationService = quotationService;
     }
 
     public void startMenu() throws SQLException {
@@ -46,7 +37,7 @@ public class ConsoleUI {
                 System.out.println("\n=== Main Menu ===");
                 System.out.println("1. Manage Clients");
                 System.out.println("2. Manage Projects");
-                System.out.println("3. Display Quotations"); // Add this option
+                System.out.println("3. Display Quotations");
                 System.out.println("4. Exit");
                 System.out.print("Choose an option: ");
                 int choice = Integer.parseInt(scanner.nextLine());
@@ -72,7 +63,8 @@ public class ConsoleUI {
             }
         }
     }
-// Crud For Client
+
+    // Crud For Client
 
     private void manageClients() {
         boolean continueManaging = true;
@@ -113,31 +105,40 @@ public class ConsoleUI {
     }
 
         private void createClient() {
-            System.out.print("Enter client name: ");
-            String name = scanner.nextLine();
+        System.out.print("Enter client name: ");
+        String name = scanner.nextLine();
 
-            System.out.print("Enter client address: ");
-            String address = scanner.nextLine();
+        System.out.print("Enter client address: ");
+        String address = scanner.nextLine();
 
-            System.out.print("Enter client phone: ");
-            String phone = scanner.nextLine();
+        String phone;
+        while (true) {
+            System.out.print("Enter client phone (format: +212 followed by 9 digits): ");
+            phone = scanner.nextLine();
 
-            System.out.print("Is the client a professional? (true/false): ");
-            boolean isProfessional = Boolean.parseBoolean(scanner.nextLine());
-
-            Client client = new Client(name, address, phone, isProfessional);
-
-            try {
-                clientRepository.createClient(client);
-                System.out.println("Client created successfully!");
-            } catch (SQLException e) {
-                System.out.println("Error creating client: " + e.getMessage());
+            if (phone.matches("^\\+212\\d{9}$")) {
+                break;
+            } else {
+                System.out.println("Invalid phone number. Please enter a phone number in the format +212 followed by 9 digits.");
             }
         }
 
+        System.out.print("Is the client a professional? (true/false): ");
+        boolean isProfessional = Boolean.parseBoolean(scanner.nextLine());
+
+        Client client = new Client(name, address, phone, isProfessional);
+
+        try {
+            clientService.createClient(client);
+            System.out.println("Client created successfully!");
+        } catch (SQLException e) {
+            System.out.println("Error creating client: " + e.getMessage());
+        }
+    }
+
         private void showClients() {
             try {
-                List<Client> clients = clientRepository.getAllClients();
+                List<Client> clients = clientService.getAllClients();
                 if (clients.isEmpty()) {
                     System.out.println("No clients found.");
                 } else {
@@ -153,20 +154,17 @@ public class ConsoleUI {
                 System.out.println("Error retrieving clients: " + e.getMessage());
             }
         }
-
         private void updateClient() {
             try {
                 System.out.print("Enter Client ID to update: ");
                 String clientId = scanner.nextLine();
 
-                // Retrieve the client using clientDAO
-                Client client = clientRepository.getClientById(Integer.parseInt(clientId));
+                Client client = clientService.getClientById(Integer.parseInt(clientId));
                 if (client == null) {
                     System.out.println("Client not found!");
                     return;
                 }
 
-                // Prompt for new Client details, with the option to leave them unchanged
                 System.out.print("Enter new Client Name (leave empty to keep current: " + client.getName() + "): ");
                 String name = scanner.nextLine();
                 if (name.isEmpty()) {
@@ -195,7 +193,7 @@ public class ConsoleUI {
                 client.setPhone(phone);
                 client.setProfessional(isProfessional);
 
-                clientRepository.updateClient(client);
+                clientService.updateClient(client);
 
                 System.out.println("Client updated successfully!");
             } catch (SQLException e) {
@@ -210,7 +208,7 @@ public class ConsoleUI {
                 System.out.print("Enter Client ID to delete: ");
                 int clientId = Integer.parseInt(scanner.nextLine());
 
-                boolean isDeleted = clientRepository.deleteClientById(Integer.parseInt(String.valueOf(clientId)));
+                boolean isDeleted = clientService.deleteClientById(Integer.parseInt(String.valueOf(clientId)));
                 if (isDeleted) {
                     System.out.println("Client deleted successfully!");
                 } else {
@@ -223,7 +221,7 @@ public class ConsoleUI {
             }
         }
 
-// Crud For Project
+    // Crud For Project
 
     private void manageProjects() throws SQLException {
         boolean continueManaging = true;
@@ -282,7 +280,7 @@ public class ConsoleUI {
 
             Project project = new Project(projectName, surface, profitMargin, ProjectStatus.IN_PROGRESS, clientId);
 
-            int projectId = projectRepository.createProject(project);
+            int projectId = projectService.createProject(project);
 
             addMaterialsToProject(projectId);
             addLaborToProject(projectId);
@@ -308,7 +306,7 @@ public class ConsoleUI {
                 System.out.print("Enter Quality Coefficient: ");
                 double qualityCoefficient = Double.parseDouble(scanner.nextLine());
 
-                componentRepository.addMaterial(materialName, materialVATRate, unitCost, quantity, transportCost, qualityCoefficient, projectId);
+                componentService.addMaterial(materialName, materialVATRate, unitCost, quantity, transportCost, qualityCoefficient, projectId);
 
                 System.out.print("Do you want to add another material? (yes/no): ");
                 continueAddingMaterials = scanner.nextLine().equalsIgnoreCase("yes");
@@ -331,7 +329,7 @@ public class ConsoleUI {
                 System.out.print("Enter Worker Productivity: ");
                 double workerProductivity = Double.parseDouble(scanner.nextLine());
 
-                componentRepository.addLabor(laborName, laborVATRate, hourlyRate, hoursWorked, workerProductivity, projectId);
+                componentService.addLabor(laborName, laborVATRate, hourlyRate, hoursWorked, workerProductivity, projectId);
 
                 System.out.print("Do you want to add another labor? (yes/no): ");
                 continueAddingLabor = scanner.nextLine().equalsIgnoreCase("yes");
@@ -342,7 +340,7 @@ public class ConsoleUI {
             System.out.print("Enter Project Name or ID to search: ");
             String input = scanner.nextLine();
 
-            List<Project> projects = projectRepository.getAllProjects();
+            List<Project> projects = projectService.getAllProjects();
             List<Project> filteredProjects = projects.stream()
                     .filter(project ->
                             project.getProjectName().toLowerCase().contains(input.toLowerCase()) ||
@@ -367,7 +365,7 @@ public class ConsoleUI {
 
         private void showProjects() {
                 try {
-                    List<Project> projects = projectRepository.getAllProjects();
+                    List<Project> projects = projectService.getAllProjects();
                     if (projects.isEmpty()) {
                         System.out.println("No projects found.");
                     } else {
@@ -389,7 +387,7 @@ public class ConsoleUI {
                 System.out.print("Enter Project ID to update: ");
                 int projectId = Integer.parseInt(scanner.nextLine());
 
-                Project project = projectRepository.getProjectById(projectId);
+                Project project = projectService.getProjectById(projectId);
                 if (project == null) {
                     System.out.println("Project not found!");
                     return;
@@ -413,7 +411,7 @@ public class ConsoleUI {
                 project.setSurface(surface);
                 project.setProfitMargin(profitMargin);
 
-                projectRepository.updateProjectWithoutCost(project);
+                projectService.updateProjectWithoutCost(project);
                 System.out.println("Project updated successfully!");
             } catch (SQLException e) {
                 System.out.println("Error updating project: " + e.getMessage());
@@ -427,8 +425,7 @@ public class ConsoleUI {
             System.out.print("Enter Project ID to delete: ");
             int projectId = Integer.parseInt(scanner.nextLine());
 
-            // Try to delete the project by its ID
-            boolean isDeleted = projectRepository.deleteProjectById(projectId);
+            boolean isDeleted = projectService.deleteProjectById(projectId);
             if (isDeleted) {
                 System.out.println("Project deleted successfully!");
             } else {
@@ -441,7 +438,7 @@ public class ConsoleUI {
         }
     }
 
-// Crud For Quotation
+    // Crud For Quotation
 
     private void manageQuotations() {
         boolean continueManaging = true;
@@ -454,7 +451,7 @@ public class ConsoleUI {
                 System.out.println("4. Delete a Quotation");
                 System.out.println("5. Back to Main Menu");
                 System.out.print("Choose an option: ");
-                int choice = Integer.parseInt(scanner.nextLine());
+                int choice = getIntInput("Choose an option: ");
 
                 switch (choice) {
                     case 1:
@@ -474,32 +471,25 @@ public class ConsoleUI {
                         break;
                     default:
                         System.out.println("Invalid choice. Please try again.");
+                        break;
                 }
-            } catch (NumberFormatException | SQLException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
+            } catch (SQLException e) {
+                System.out.println("Database error: " + e.getMessage());
             }
         }
     }
 
         private void generateQuotation() throws SQLException {
-            System.out.print("Enter Project ID to generate a quotation: ");
-            int projectId;
+            int projectId = getIntInput("Enter Project ID to generate a quotation: ");
 
-            try {
-                projectId = Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid project ID.");
-                return;
-            }
-
-            Project project = projectRepository.getProjectById(projectId);
+            Project project = projectService.getProjectById(projectId);
             if (project == null) {
                 System.out.println("Project not found.");
                 return;
             }
 
-            double totalMaterialCost = componentRepository.getTotalMaterialCostByProjectId(projectId);
-            double totalLaborCost = componentRepository.getTotalLaborCostByProjectId(projectId);
+            double totalMaterialCost = componentService.getTotalMaterialCostByProjectId(projectId);
+            double totalLaborCost = componentService.getTotalLaborCostByProjectId(projectId);
 
             totalMaterialCost = Math.max(totalMaterialCost, 0);
             totalLaborCost = Math.max(totalLaborCost, 0);
@@ -507,138 +497,139 @@ public class ConsoleUI {
             double totalCost = totalMaterialCost + totalLaborCost;
             double finalCost = totalCost * (1 + project.getProfitMargin());
 
-            double VAT = 15.0; // Set your desired VAT value here
+            double VAT = 15.0;
 
             System.out.println("\n=== Project Quotation ===");
             System.out.println("Project Name: " + project.getProjectName());
             System.out.println("Surface Area: " + project.getSurface() + " sqm");
             System.out.println("Profit Margin: " + (project.getProfitMargin() * 100) + "%");
-            System.out.printf("Total Material Cost:  €%.2f%n", totalMaterialCost);
-            System.out.printf("Total Labor Cost:  €%.2f%n", totalLaborCost);
-            System.out.printf("Final Project Cost (with profit):  €%.2f%n", finalCost);
+            System.out.printf("Total Material Cost: €%.2f%n", totalMaterialCost);
+            System.out.printf("Total Labor Cost: €%.2f%n", totalLaborCost);
+            System.out.printf("Final Project Cost (with profit): €%.2f%n", finalCost);
 
-            // Retrieve the next available ID for the quotation
-            QuotationRepository quotationRepository = new QuotationRepository(); // Create instance here
-            int nextQuotationId = quotationRepository.getNextQuotationId(); // Call the instance method
+            int nextQuotationId = quotationService.getNextQuotationId();
 
-            // Create a Quotation object
             Quotation quotation = new Quotation(
-                    nextQuotationId, // Use the generated positive ID here
+                    nextQuotationId,
                     finalCost,
-                    new Date(System.currentTimeMillis()),
-                    new Date(System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 30)), // validity date (30 days later)
+                    new Date(),
+                    new Date(System.currentTimeMillis() + (30L * 24 * 60 * 60 * 1000)), // validity date (30 days later)
                     VAT,
                     false,
                     project
             );
 
-            quotationRepository.saveQuotation(quotation);
+            quotationService.saveQuotation(quotation);
             System.out.println("Quotation saved successfully.");
         }
 
         private void updateQuotation() throws SQLException {
-            System.out.print("Enter Quotation ID to update: ");
-            int quotationId;
+            int quotationId = getIntInput("Enter Quotation ID to update: ");
 
-            try {
-                quotationId = Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid quotation ID.");
-                return;
-            }
-
-            // Récupérer l'instance de QuotationRepository
-            QuotationRepository quotationRepository = new QuotationRepository();
-
-            // Récupérer la quotation existante
-            Quotation existingQuotation = quotationRepository.getQuotationById(quotationId);
+            Quotation existingQuotation = quotationService.getQuotationById(quotationId);
             if (existingQuotation == null) {
                 System.out.println("Quotation not found.");
                 return;
             }
 
-            // Récupérer l'instance de ProjectRepository (ou la classe appropriée)
-            ProjectRepository projectRepository = new ProjectRepository();
+            int projectId = getIntInput("Enter new Project ID (current: " + existingQuotation.getProjectId() + "): ");
 
-            // Demander à l'utilisateur de saisir le nouvel ID du projet
-            System.out.print("Enter new Project ID (current: " + existingQuotation.getProjectId() + "): ");
-            int projectId = Integer.parseInt(scanner.nextLine());
-
-            // Vérifier si le projet existe
-            Project project = projectRepository.getProjectById(projectId);
+            Project project = projectService.getProjectById(projectId);
             if (project == null) {
                 System.out.println("Project not found.");
                 return;
             }
 
-            // Demander les nouveaux détails
-            System.out.print("Enter new Estimated Amount (current: " + existingQuotation.getEstimatedAmount() + "): ");
-            double estimatedAmount = Double.parseDouble(scanner.nextLine());
+            double estimatedAmount = getDoubleInput("Enter new Estimated Amount (current: " + existingQuotation.getEstimatedAmount() + "): ");
+            double VAT = getDoubleInput("Enter new VAT (current: " + existingQuotation.getVAT() + "): ");
+            boolean accepted = getBooleanInput("Enter new Accepted status (true/false, current: " + existingQuotation.isAccepted() + "): ");
 
-            System.out.print("Enter new VAT (current: " + existingQuotation.getVAT() + "): ");
-            double VAT = Double.parseDouble(scanner.nextLine());
-
-            System.out.print("Enter new Accepted status (true/false, current: " + existingQuotation.isAccepted() + "): ");
-            boolean accepted = Boolean.parseBoolean(scanner.nextLine());
-
-            // Mettre à jour la quotation
             existingQuotation.setEstimatedAmount(estimatedAmount);
             existingQuotation.setVAT(VAT);
             existingQuotation.setAccepted(accepted);
-            existingQuotation.setProject(project); // Mettre à jour le projet
+            existingQuotation.setProject(project);
 
-            quotationRepository.updateQuotation(existingQuotation);
+            quotationService.updateQuotation(existingQuotation);
             System.out.println("Quotation updated successfully.");
         }
 
         private void deleteQuotation() throws SQLException {
-            System.out.print("Enter Quotation ID to delete: ");
-            int quotationId;
+            int quotationId = getIntInput("Enter Quotation ID to delete: ");
 
-            try {
-                quotationId = Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid quotation ID.");
-                return;
-            }
-
-            // Récupérer l'instance de QuotationRepository
-            QuotationRepository quotationRepository = new QuotationRepository();
-
-            // Vérifier si la quotation existe
-            if (quotationRepository.getQuotationById(quotationId) == null) {
+            if (quotationService.getQuotationById(quotationId) == null) {
                 System.out.println("Quotation not found.");
                 return;
             }
 
-            // Supprimer la quotation
-            quotationRepository.deleteQuotation(quotationId);
+            quotationService.deleteQuotation(quotationId);
             System.out.println("Quotation deleted successfully.");
         }
 
-        public void displayAllQuotations() {
-        try {
-            List<Quotation> quotations = quotationRepository.getAllQuotations();
-            for (Quotation quotation : quotations) {
-                System.out.println("Quotation ID: " + quotation.getId());
-                System.out.println("Estimated Amount: " + quotation.getEstimatedAmount());
-                System.out.println("VAT: " + quotation.getVAT());
-                System.out.println("Issue Date: " + quotation.getIssueDate());
-                System.out.println("Validity Date: " + quotation.getValidityDate());
-
-                if (quotation.getProject() != null) {
-                    System.out.println("Project ID: " + quotation.getProject().getId());
-                    System.out.println("Project Name: " + quotation.getProject().getProjectName());
-                } else {
-                    System.out.println("Project: Not available");
-                }
-
-                System.out.println("---------------");
+        public void displayAllQuotations() throws SQLException {
+            List<Quotation> quotations = quotationService.getAllQuotations();
+            if (quotations.isEmpty()) {
+                System.out.println("No quotations found.");
+                return;
             }
-        } catch (SQLException e) {
-            System.out.println("Error fetching quotations: " + e.getMessage());
+            for (Quotation quotation : quotations) {
+                displayQuotation(quotation);
+            }
         }
-    }
+
+        private void displayQuotation(Quotation quotation) {
+            System.out.println("Quotation ID: " + quotation.getId());
+            System.out.println("Estimated Amount: " + quotation.getEstimatedAmount());
+            System.out.println("VAT: " + quotation.getVAT());
+            System.out.println("Issue Date: " + quotation.getIssueDate());
+            System.out.println("Validity Date: " + quotation.getValidityDate());
+
+            if (quotation.getProject() != null) {
+                System.out.println("Project ID: " + quotation.getProject().getId());
+                System.out.println("Project Name: " + quotation.getProject().getProjectName());
+            } else {
+                System.out.println("Project: Not available");
+            }
+
+            System.out.println("---------------");
+        }
+
+        private int getIntInput(String prompt) {
+            while (true) {
+                try {
+                    System.out.print(prompt);
+                    Scanner scanner = new Scanner(System.in);
+                    return scanner.nextInt();
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter a valid integer.");
+                }
+            }
+        }
+
+        private double getDoubleInput(String prompt) {
+            while (true) {
+                try {
+                    System.out.print(prompt);
+                    Scanner scanner = new Scanner(System.in);
+                    return scanner.nextDouble();
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter a valid decimal number.");
+                }
+            }
+        }
+
+        private boolean getBooleanInput(String prompt) {
+            while (true) {
+                try {
+                    System.out.print(prompt + " (true/false): ");
+                    Scanner scanner = new Scanner(System.in);
+                    return scanner.nextBoolean();
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter 'true' or 'false'.");
+                }
+            }
+        }
+
+
 
 }
 

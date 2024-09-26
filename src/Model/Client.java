@@ -1,11 +1,14 @@
 package Model;
 
 public class Client {
-    private int id; // Change id to int
+    private int id;
     private String name;
     private String address;
     private String phone;
     private boolean isProfessional;
+
+
+    public Client(){}
 
     // Constructor with id
     public Client(int id, String name, String address, String phone, boolean isProfessional) {

@@ -48,8 +48,5 @@ public class Material extends Component {
         this.qualityCoefficient = qualityCoefficient;
     }
 
-    @Override
-    public double calculerCout() {
-        return (getUnitCost() * getQuantity() * getQualityCoefficient() * getVATRate() / 100) + getTransportCost() ;
-    }
+
 }

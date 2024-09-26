@@ -3,10 +3,9 @@ package Model;
 public abstract class Component {
     protected String id;
     protected String name;
-    protected String componentType; // Can be 'MATERIAL' or 'Labor'
+    protected String componentType;
     protected double VATRate;
 
-    public abstract double calculerCout();
 
     // Constructor
     public Component(String id, String nom, String typeComposant, double tauxTVA) {
@@ -15,8 +14,7 @@ public abstract class Component {
         this.componentType = typeComposant;
         this.VATRate = tauxTVA;
     }
-
-
+    
     // Getters and Setters
     public String getId() {
         return id;
