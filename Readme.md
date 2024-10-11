@@ -46,6 +46,8 @@
    ```bash
    git clone https://github.com/JavaAura/Hafsa_Elmoatassim_Billah_S1_B2_Libary_System_V2
    
+2. **Jar** :
+
   ```bash
    java -jar nom_du_fichier.jar
 
